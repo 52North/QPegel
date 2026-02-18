@@ -1,0 +1,10 @@
+[general]
+name=QPegel
+description=Plugin to view real-time sensor data of water levels
+about=About the plugin
+version=1.0
+qgisMinimumVersion=3.0
+author=Julia Rotert
+email=jrotert@test.com
+repository=URL to the code repository
+supportsQt6=True
