@@ -48,9 +48,11 @@ class EDISConnector(QThread):
         self.status_msg.emit(str(reason_code))
 
     def subscribe(self, topic: str):
+        print(f"subscribed to {topic}")
         self.mqtt_client.subscribe(topic)
 
     def unsubscribe(self, topic: str):
+        print(f"UNsubscribed to {topic}")
         self.mqtt_client.unsubscribe(topic)
 
     def on_message(self, client, userdata, msg):
