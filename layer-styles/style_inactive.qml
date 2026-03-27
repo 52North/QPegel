@@ -1,5 +1,5 @@
 <!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
-<qgis labelsEnabled="0" layerType="Vector" styleCategories="Symbology|Labeling" version="3.99.0-Master">
+<qgis layerType="Vector" styleCategories="Symbology" version="3.99.0-Master">
   <renderer-v2 enableorderby="0" forceraster="0" referencescale="-1" symbollevels="0" type="singleSymbol">
     <symbols>
       <symbol alpha="1" clip_to_extent="1" force_rhr="0" frame_rate="10" is_animated="0" name="0" type="marker">
@@ -14,7 +14,7 @@
           <Option type="Map">
             <Option name="angle" type="QString" value="0"/>
             <Option name="cap_style" type="QString" value="square"/>
-            <Option name="color" type="QString" value="227,26,28,255,rgb:0.8901961,0.1019608,0.1098039,1"/>
+            <Option name="color" type="QString" value="227,159,26,255,hsv:0.11013888567686081,0.88546580076217651,0.89019608497619629,1"/>
             <Option name="horizontal_anchor_point" type="QString" value="1"/>
             <Option name="joinstyle" type="QString" value="bevel"/>
             <Option name="name" type="QString" value="circle"/>

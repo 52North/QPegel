@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>418</width>
+    <width>497</width>
     <height>890</height>
    </rect>
   </property>
@@ -189,7 +189,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="enabled">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="sizePolicy">
        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
@@ -224,22 +224,22 @@
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout">
               <item>
-               <widget class="QPushButton" name="pushButtonPolygon">
+               <widget class="QPushButton" name="pushButtonAddPolygon">
                 <property name="enabled">
                  <bool>false</bool>
                 </property>
                 <property name="text">
-                 <string>Start Polygon Selection</string>
+                 <string>Add Polygon</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="pushButtonRestart">
+               <widget class="QPushButton" name="pushButtonRemovePolygon">
                 <property name="enabled">
                  <bool>false</bool>
                 </property>
                 <property name="text">
-                 <string>Restart</string>
+                 <string>Remove Polygon</string>
                 </property>
                </widget>
               </item>
@@ -266,17 +266,65 @@
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="labelGewaesserParameter">
-              <property name="text">
-               <string>gewaesser parameter: </string>
+             <widget class="QgsCollapsibleGroupBox" name="mGroupBoxParameter">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLineEdit" name="lineEditGewaesserParameter">
-              <property name="enabled">
-               <bool>false</bool>
+              <property name="title">
+               <string>Add Parameters</string>
               </property>
+              <property name="collapsed">
+               <bool>true</bool>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_9">
+               <item>
+                <widget class="QLabel" name="labelStation">
+                 <property name="text">
+                  <string>station - Suche über einen Stationsnamen (z.B. Köln)</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="lineEditStation"/>
+               </item>
+               <item>
+                <widget class="QLabel" name="labelGewaesser">
+                 <property name="text">
+                  <string>gewaesser - Suche über ein Gewässer (z.B. Rhein)</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="lineEditGewaesser">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="labelParameter">
+                 <property name="text">
+                  <string>parameter - Suche über einen Beobachtungsparameter (z.B. Wassertemperatur)</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="lineEditParameter"/>
+               </item>
+               <item>
+                <widget class="QLabel" name="labelQ">
+                 <property name="text">
+                  <string>q - Suche über alle verfügbaren Parameter (z.B. Köln) </string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="lineEditQ"/>
+               </item>
+              </layout>
              </widget>
             </item>
             <item>
@@ -400,9 +448,9 @@
                </spacer>
               </item>
               <item>
-               <widget class="QPushButton" name="pushButtonDelete">
+               <widget class="QPushButton" name="pushButtonRemoveStation">
                 <property name="text">
-                 <string>Delete</string>
+                 <string>Remove</string>
                 </property>
                </widget>
               </item>
@@ -444,7 +492,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QgsCheckableComboBox" name="mComboBoxValueType"/>
+         <widget class="QgsCheckableComboBox" name="mComboBoxUnit"/>
         </item>
         <item>
          <layout class="QVBoxLayout" name="verticalLayoutPlot"/>
