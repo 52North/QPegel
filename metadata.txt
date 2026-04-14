@@ -1,14 +1,18 @@
 [general]
 name=QPegel
 description=View real-time sensor data of german waters
-about=QPegel is a plugin which enables a map-based selection of sensor-stations measuring water-related values. Those stations can be subscribed to visualize incoming data live on the map and as plots.
-version=1.0
+about=QPegel is a plugin which enables a map-based search for sensor-stations measuring water-related values. Those stations can be subscribed via MQTT to visualize incoming data live on the map and as plots.
+version=0.1.0
 qgisMinimumVersion=3.0
-author=Julia Rotert
-email=jrotert@test.com
+author=Julia Rotert - 52°North GmbH
+email=j.rotert@52north.org
 repository=https://github.com/Juliarotert/QPegel
 homepage=https://github.com/Juliarotert/QPegel
-icon=PegelOnlineLogo.png
+tracker=https://github.com/Juliarotert/QPegel/issues
+icon=Logo.png
+category=Vector
+tags=web, api, mqtt, IoT, sensordata, plots, real-time, hydrology
 supportsQt6=True
+experimental=True
 
 plugin_dependencies=qpip

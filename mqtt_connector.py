@@ -1,3 +1,25 @@
+"""
+***************************************************************************
+QPegel
+QGIS plugin
+
+        Begin                : February 2026
+        Copyright            : (C) 2026 52°North GmbH
+        Email                : j.rotert@52north.org
+
+***************************************************************************
+
+***************************************************************************
+*                                                                         *
+*   This program is free software; you can redistribute it and/or modify  *
+*   it under the terms of the GNU General Public License as published by  *
+*   the Free Software Foundation; either version 3 of the License, or     *
+*   (at your option) any later version.                                   *
+*                                                                         *
+***************************************************************************
+"""
+
+
 import json
 
 import paho.mqtt.client as mqtt
@@ -59,7 +81,8 @@ class EDISConnector(QThread):
         self.new_message.emit(json.loads(msg.payload))
         ##DEBUG ONLY
         message = msg.topic + " " + str(msg.payload)
-        print(msg.topic)
+        print(f"topic: {msg.topic}")
 
     def on_disconnect(self, client, _, flags, reason_code, properties):
         print(f"Disconnected with result code {reason_code}")
+        self.status_msg.emit(str(reason_code))
