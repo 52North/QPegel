@@ -50,7 +50,6 @@ from plotly.subplots import make_subplots
 from .QPegel_dialog import QPegelDialog
 from .mqtt_connector import EDISConnector
 
-from .login import hostname, port, username, password
 
 
 class QPegel(object):
@@ -70,11 +69,6 @@ class QPegel(object):
         self.action = QAction(QIcon(os.path.join(self.plugin_dir, "Logo.png")), 'QPegel', self.canvas)
 
         # initialize variables
-        # TODO: delete data from login-file
-        self.dlg.lineEditHostname.setText(hostname)
-        self.dlg.lineEditPort.setText(str(port))
-        self.dlg.lineEditUsername.setText(username)
-        self.dlg.mLineEditPassword.setText(password)
         # request
         self.reader: EDISConnector = None
         self.bbox: list[float] = None
@@ -141,7 +135,6 @@ class QPegel(object):
         self.dlg.lineEditQ.editingFinished.connect(self.update_request)
         self.dlg.tabWidget.currentChanged.connect(self.on_main_tab_change)
         self.dlg.mMapLayerComboBox.layerChanged.connect(self.prepare_plot)
-        #self.dlg.checkBoxHistorical.checkStateChanged.connect(self.on_checkbox_historical_change)
         self.dlg.checkBoxOnlySubscribed.checkStateChanged.connect(self.on_checkbox_onlysubscribed_change)
         self.dlg.mComboBoxUnit.checkedItemsChanged.connect(self.on_checked_unit_change)
         QgsProject.instance().layerRemoved.connect(self.on_layer_removed)
@@ -177,13 +170,13 @@ class QPegel(object):
     # connects to reader with user data
     def connectbtn_clicked(self):
         #self.dlg.tabWidget.setCurrentWidget(self.dlg.tabWidget.findChild(QWidget, "tab1Request"))
-        # declare userdata
-        hostname = self.dlg.lineEditHostname.text()
-        port = int(self.dlg.lineEditPort.text())
-        username = self.dlg.lineEditUsername.text()
-        password = self.dlg.mLineEditPassword.text()
-        # create reader
         try:
+            # declare userdata
+            hostname = self.dlg.lineEditHostname.text()
+            port = int(self.dlg.lineEditPort.text())
+            username = self.dlg.lineEditUsername.text()
+            password = self.dlg.mLineEditPassword.text()
+            # create reader
             self.reader = EDISConnector(parent=self.dlg, hostname=hostname, port=port, username=username,
                                         password=password)
             # receive and handle messages by reader
