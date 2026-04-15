@@ -12,6 +12,7 @@ tracker=https://github.com/Juliarotert/QPegel/issues
 icon=Logo.png
 category=Vector
 tags=web, api, mqtt, IoT, sensordata, plots, real-time, hydrology
+
 supportsQt6=True
 experimental=True
 

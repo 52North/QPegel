@@ -31,6 +31,7 @@ from PyQt6.QtCore import *
 from PyQt6.QtWidgets import QMessageBox
 
 import os
+import webbrowser
 import requests
 import json
 from datetime import datetime
@@ -65,7 +66,7 @@ class QPegel(object):
         self.iface.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.dlg)
         # self.dlg.setParent(iface.mainWindow(), Qt.WindowType.Window)
         # self.dlg.setWindowFlags(Qt.WindowType.Tool)
-        self.plugin_dir = os.path.dirname(os.path.abspath(__file__))
+        self.plugin_dir : str = os.path.dirname(os.path.abspath(__file__))
         self.action = QAction(QIcon(os.path.join(self.plugin_dir, "Logo.png")), 'QPegel', self.canvas)
 
         # initialize variables
@@ -75,9 +76,9 @@ class QPegel(object):
         self.dlg.lineEditUsername.setText(username)
         self.dlg.mLineEditPassword.setText(password)
         # request
-        self.reader = None
-        self.bbox = None
-        self.polygon = None
+        self.reader: EDISConnector = None
+        self.bbox: list[float] = None
+        self.polygon: QgsGeometry = None
         self.polygon_layer: QgsVectorLayer = None
         self.polygon_layer_id: str = ""
         self.stations_layer: QgsVectorLayer = None
@@ -87,18 +88,21 @@ class QPegel(object):
         self.url_parameters: dict[str, str] = {}
         self.request_url: str = ""
         self.group_name: str = ""
-        self.group : QgsLayerTreeGroup = None
+        self.group: QgsLayerTreeGroup = None
         self.response_json: dict[str, Any] = None
         self.station_index: dict[str, Any] = {}
         # layers
-        self.stationlayer_mapping: dict[
-            str, dict[str, Any]] = {}  # {name: {id: str, active: bool}}
+        # self.stationlayer_mapping = {name: {id: str, active: bool}}
+        self.stationlayer_mapping: dict[str, dict[str, str | bool]] = {}
         self.root = QgsProject.instance().layerTreeRoot()
         # plots
         self.plot_layer: QgsVectorLayer = None
-        self.plot_mapping: dict[str, dict[str, dict[str, Any]]] = {} # {layername: {unitlongname: {data: [{timestamp: time, value: float}, ...], unit: str, type: str, unitactive: bool}}}
-        self.figure = Figure()
-        self.canvas = FigureCanvas(self.figure)
+        # self.plot_mapping = {layername: {unitlongname: {data: [{timestamp: time, value: float}, ...], unit: str, type: str, unitactive: bool}}}
+        self.plot_mapping: dict[str, dict[str, dict[str, list[dict[str, str | float]] | str | bool]]] = {}
+        self.figure: Figure = Figure()
+        self.canvas: FigureCanvas = FigureCanvas(self.figure)
+
+        # add some additional UI elements
         self.dlg.verticalLayoutPlot.addWidget(self.canvas)
         self.toolbar = NavigationToolbar(self.canvas, self.iface.mainWindow())
         self.dlg.verticalLayoutPlot.addWidget(self.toolbar)
@@ -108,11 +112,6 @@ class QPegel(object):
         self.action = QAction(QIcon(os.path.join(self.plugin_dir, "Logo.png")), 'QPegel', self.canvas)
         self.action.triggered.connect(self.run)
         self.iface.addToolBarIcon(self.action)
-
-        self.dlg.pushButtonAddPolygon.setIcon(QIcon(os.path.join(self.plugin_dir, "img/polygon.svg")))
-        self.dlg.pushButtonRemovePolygon.setIcon(QIcon(os.path.join(self.plugin_dir, "img/remove_polygon.svg")))
-        #self.dlg.pushButtonSelectAll.setIcon(QIcon(os.path.join(self.plugin_dir, "img/select_all.png")))
-        #self.dlg.pushButtonUnselectAll.setIcon(QIcon(os.path.join(self.plugin_dir, "img/unselect_all.png")))
 
         # connect the buttons
         # self.dlg.rejected.connect(self.closebtn_clicked)
@@ -129,23 +128,25 @@ class QPegel(object):
         self.dlg.pushButtonHelp.clicked.connect(self.open_help)
         self.dlg.pushButtonQuitSession.clicked.connect(self.quitsessionbtn_clicked)
 
+        # initial steps & signal-slot connections
+        self.dlg.pushButtonAddPolygon.setIcon(QIcon(os.path.join(self.plugin_dir, "img/polygon.svg")))
+        self.dlg.pushButtonRemovePolygon.setIcon(QIcon(os.path.join(self.plugin_dir, "img/remove_polygon.svg")))
         self.dlg.tabWidget.setCurrentWidget(self.dlg.tabWidget.findChild(QWidget, "tab1Request"))
         self.change_status("disconnected", "gray")
         self.dlg.mMapLayerComboBox.setFilters(QgsMapLayerProxyModel.PointLayer)
         self.filter_layers()
-        # QgsProject.instance().layerWasAdded.connect(self.filter_layers)
         self.dlg.lineEditStation.editingFinished.connect(self.update_request)
         self.dlg.lineEditGewaesser.editingFinished.connect(self.update_request)
         self.dlg.lineEditParameter.editingFinished.connect(self.update_request)
         self.dlg.lineEditQ.editingFinished.connect(self.update_request)
         self.dlg.tabWidget.currentChanged.connect(self.on_main_tab_change)
         self.dlg.mMapLayerComboBox.layerChanged.connect(self.prepare_plot)
-        self.dlg.checkBoxHistorical.checkStateChanged.connect(self.on_checkbox_historical_change)
+        #self.dlg.checkBoxHistorical.checkStateChanged.connect(self.on_checkbox_historical_change)
+        self.dlg.checkBoxOnlySubscribed.checkStateChanged.connect(self.on_checkbox_onlysubscribed_change)
         self.dlg.mComboBoxUnit.checkedItemsChanged.connect(self.on_checked_unit_change)
-
         QgsProject.instance().layerRemoved.connect(self.on_layer_removed)
 
-    # important function - otherwise the toolbar button is added each time when reloading happens -> multiple Buttons
+    # base function to avoid multiple toolbar buttons
     def unload(self):
         self.iface.removeToolBarIcon(self.action)
         del self.action
@@ -154,15 +155,26 @@ class QPegel(object):
     def run(self):
         self.dlg.show()
 
+    # opens help/ documentation docs
     def open_help(self):
-        # open documentation
-        webbrowser.open("https://Juliarotert.github.io/QPegel/")
+        webbrowser.open("https://github.com/Juliarotert/QPegel/blob/master/README.md")
 
+    # fast style changes of connection info
     def change_status(self, status : str, color:str):
         self.dlg.widgetStatus.setStyleSheet(f"background-color: {color}; border-radius: 10px")
         self.dlg.labelStatus.setText(status)
 
+    # creates a new group for session layers
+    def create_session_group(self):
+        self.group_name = "Session - " + str(datetime.now().replace(microsecond=0))
+        self.group = QgsLayerTreeGroup(self.group_name)
+        self.root.insertChildNode(0, self.group)
+
+
+
     ### Authentification & Connection
+
+    # connects to reader with user data
     def connectbtn_clicked(self):
         #self.dlg.tabWidget.setCurrentWidget(self.dlg.tabWidget.findChild(QWidget, "tab1Request"))
         # declare userdata
@@ -183,14 +195,14 @@ class QPegel(object):
             self.change_status("error", "red")
             QMessageBox.warning(None, "Error", f"Connection Error: \n{e}")
 
-    def create_session_group(self):
-        self.group_name = "Session - " + str(datetime.now().replace(microsecond=0))
-        self.group = QgsLayerTreeGroup(self.group_name)
-        self.root.insertChildNode(0, self.group)
-
-    def handle_status(self, msg):
+    # handle incoming connection status messages
+    def handle_status(self, msg : str):
         # only start and enable next steps with success message
         if msg == "Success":
+            self.iface.messageBar().pushMessage(
+                "Connected",
+                level=Qgis.MessageLevel.Info,
+                duration=2)
             if self.group_name == "":
                 self.create_session_group()
                 self.dlg.pushButtonAddPolygon.setEnabled(True)
@@ -208,20 +220,26 @@ class QPegel(object):
                     if info["active"] == True:
                         self.reader.subscribe(self.station_index[name]["mqtttopic"])
                 self.change_session_station_styles("active")
+        # handle different status cases
         elif msg == "Bad user name or password":
             self.change_status("error", "red")
             QMessageBox.warning(None, "Error", f"Invalid User Data: \n{msg}")
-        elif msg == "Opening Connection to edis.pegelonline-int.wsv.de":
+        elif "Opening Connection to" in msg:
             pass
         elif msg == "Keep alive timeout":
-            QMessageBox.warning(None, "Error:", f"Error: \n{msg} \n check your internet connection")
+            QMessageBox.warning(None, "Error:", f"Error: \n{msg} \ncheck your internet connection")
             self.disconnectbtn_clicked()
         elif msg == "Normal disconnection":
-            pass
+            self.iface.messageBar().pushMessage(
+                "Disconnected",
+                level=Qgis.MessageLevel.Info,
+                duration=2)
         else:
+            self.disconnectbtn_clicked()
             self.change_status("error", "red")
             QMessageBox.warning(None, "Error:", f"Error: \n{msg}")
 
+    # disconnect from reader
     def disconnectbtn_clicked(self):
         # stop reader
         if self.reader:
@@ -238,24 +256,27 @@ class QPegel(object):
         else:
             pass
 
+    # change layer styles
     def change_session_station_styles(self, type: str):
         if self.group is not None:
-            for child in self.group.children():
-                layer = child.layer()
-                if isinstance(layer, QgsVectorLayer):
-                    field_names = [field.name() for field in layer.fields()]
-                    if all(field_name in field_names for field_name in ["timestamp", "longname", "value"]):
-                        if self.stationlayer_mapping[layer.name()]["active"] is True:
-                            if type == "active":
-                                layer.loadNamedStyle(os.path.join(self.plugin_dir, "layer-styles/style_active.qml"))
-                            elif type == "inactive":
-                                layer.loadNamedStyle(
-                                    os.path.join(self.plugin_dir, "layer-styles/style_inactive.qml"))
-                            else:
-                                QMessageBox.warning(None, "Error:", f"Error: \n wrong layer style type input or error")
+            for name, info in self.stationlayer_mapping.items():
+                layer = QgsProject.instance().mapLayersByName(name)[0]
+                if info["active"] is True:
+                    if type == "active":
+                        layer.loadNamedStyle(os.path.join(self.plugin_dir, "layer-styles/style_active.qml"))
+                    elif type == "inactive":
+                        layer.loadNamedStyle(
+                            os.path.join(self.plugin_dir, "layer-styles/style_inactive.qml"))
+                    else:
+                        QMessageBox.warning(None, "Error:", f"Error: \n wrong layer style type input or error")
 
-    ### Polygon Selection
+
+
+    ### Station Selection
+
+    # start polygon editing for map-based search
     def polygonbtn_clicked(self):
+        # inform about possibility to start drawing
         self.iface.messageBar().pushMessage(
             "Start Polygon Selection",
             "draw a polygon in the map",
@@ -263,7 +284,8 @@ class QPegel(object):
             duration=3,
         )
         self.dlg.pushButtonAddPolygon.setEnabled(False)
-
+        self.dlg.pushButtonSend.setEnabled(False)
+        # create group if not existing
         if self.group is None:
             self.create_session_group()
             group = self.root.findGroup(self.group_name)
@@ -271,7 +293,7 @@ class QPegel(object):
         self.polygon_layer = QgsVectorLayer("Polygon?crs=EPSG:25832", "Polygon", "memory")
         self.polygon_layer_id = self.polygon_layer.id()
         QgsProject.instance().addMapLayer(self.polygon_layer, False)
-        self.group.insertChildNode(0, QgsLayerTreeLayer(self.polygon_layer))
+        self.group.insertChildNode(-1, QgsLayerTreeLayer(self.polygon_layer))
         self.polygon_layer.loadNamedStyle(os.path.join(self.plugin_dir, "layer-styles/style_polygons.qml"))
 
         # set layer active and start editing
@@ -284,6 +306,7 @@ class QPegel(object):
     # slot to save automatically when the first feature is added
     def on_feature_added(self, feature_id):
         self.dlg.pushButtonRemovePolygon.setEnabled(True)
+        self.dlg.pushButtonSend.setEnabled(True)
         exporter = QgsJsonExporter(self.polygon_layer)
         data = exporter.exportFeatures(self.polygon_layer.getFeatures())
         data_json = json.loads(data)
@@ -292,6 +315,7 @@ class QPegel(object):
         self.polygon = next(self.polygon_layer.getFeatures()).geometry()
         self.finish_polygon()
 
+    # stops edit mode when first polygon feature is added
     def finish_polygon(self):
         # disconnect from signal and stop editing
         self.polygon_layer.featureAdded.disconnect(self.on_feature_added)
@@ -300,6 +324,7 @@ class QPegel(object):
         # update request with finished polygon
         self.update_request()
 
+    # gets the latest request parameters
     def update_request(self):
         if self.bbox is None:
             bbox_str = ""
@@ -315,16 +340,18 @@ class QPegel(object):
             if self.url_parameters[param] == "":
                 self.url_parameters.pop(param)
 
+    # starts the request, receives & transmits response
     def sendbtn_clicked(self):
         # API request with current parameters
-        request = requests.get(self.base_url, self.url_parameters)
-        # check if request was successful or print error
-        if request.status_code == 200:
-            self.on_response(request)
-            self.dlg.textEditRequest.setPlainText(request.url)
+        response = requests.get(self.base_url, self.url_parameters)
+        # check if request was successful or show error
+        if response.status_code == 200:
+            self.on_response(response)
+            self.dlg.textEditRequest.setPlainText(response.url)
         else:
             QMessageBox.warning(None, "Error:", f"Error: {response.status_code}")
 
+    # converts response to json & decides for next steps
     def on_response(self, response):
         # convert response to json and check length
         response_json = response.json()
@@ -334,6 +361,7 @@ class QPegel(object):
         else:
             self.dlg.lineEditResponse.setText("0 stations found")
 
+    # add new stations to station_layer
     def add_station_points(self):
         if self.group is None:
             self.create_session_group()
@@ -369,12 +397,14 @@ class QPegel(object):
         feature_shortnames = []
         for feature in features:
             feature_shortnames.append(feature["shortname"])
+        # check if station is new
         for station in self.response_json["stations"]:
             if station["shortname"] not in feature_shortnames:
                 self.station_index[station["shortname"]] = station
                 point = QgsPointXY(station["longitude"], station["latitude"])
                 point_reprojected = transform_parameters.transform(point)
                 point_geometry = QgsGeometry.fromPointXY(point_reprojected)
+                # only add data if no polygon exists or if the station intersects the polygon
                 if not self.polygon or self.polygon.intersects(point_geometry):
                     feature = QgsFeature()
                     feature.setGeometry(point_geometry)
@@ -415,38 +445,44 @@ class QPegel(object):
         # start the "identify features" button after finishing to view the stations attributes on click
         self.iface.actionIdentify().trigger()
 
+    # select all stations
     def selectallbtn_clicked(self):
         for i in range(self.dlg.listWidgetLayers.count()):
             item = self.dlg.listWidgetLayers.item(i)
             item.setSelected(True)
 
+    # unselect all stations
     def unselectallbtn_clicked(self):
         for i in range(self.dlg.listWidgetLayers.count()):
             item = self.dlg.listWidgetLayers.item(i)
             item.setSelected(False)
 
+
+
+    ### Station Subscription & Data Stream Handling
+
+    # subscribe selected, not existing or already subscribed stations
     def subscribebtn_clicked(self):
         subscribed_list = []
         # listWidget is not iterable!! -> range
-        for i in range(self.dlg.listWidgetLayers.count()):
+        for i in reversed(range(self.dlg.listWidgetLayers.count())):
             item = self.dlg.listWidgetLayers.item(i)
             if item.isSelected():
                 exists = False
                 already_subscribed = False
-                item.setIcon(QIcon(os.path.join(self.plugin_dir, "img/circle_green.svg")))
+                # check if station exists
                 for name, info in self.stationlayer_mapping.items():
                     id, active = info["id"], info["active"]
+                    # set exists true if existing in stationlayer_mapping
                     if item.text() == name:
                         layer = QgsProject.instance().mapLayersByName(item.text())[0]
                         already_subscribed = active
-                        # Layer already exists
                         exists = True
                         break
 
                 if not exists:
-                    # create new layer with attributes to group if checked
+                    # create new layer attributes to group if checked
                     layer = QgsVectorLayer("Point?crs=EPSG:25832", item.text(), "memory")
-                    layer.loadNamedStyle(os.path.join(self.plugin_dir, "layer-styles/style_closed.qml"))
                     QgsProject.instance().addMapLayer(layer, False)
                     self.dlg.textEditStationlayerMapping.setPlainText(str(self.stationlayer_mapping))
                     self.group.insertChildNode(0, QgsLayerTreeLayer(layer))
@@ -456,20 +492,21 @@ class QPegel(object):
                                                         QgsField("unit", QVariant.String),
                                                         QgsField("type", QVariant.String)])
                     layer.updateFields()
+                    self.stations_layer.triggerRepaint()
                     # add layer to dict {"shortname": QgsVectorLayer}
                     already_subscribed = False
                     self.plot_mapping[item.text()] = {}
 
-                # subscribe topic
+                # subscribe topic and set styles & state
                 if not already_subscribed:
                     subscribed_list.append(layer.name())
                     self.reader.subscribe(self.station_index[layer.name()]["mqtttopic"])
+                    item.setIcon(QIcon(os.path.join(self.plugin_dir, "img/circle_green.svg")))
                     layer.loadNamedStyle(os.path.join(self.plugin_dir, "layer-styles/style_active.qml"))
                     self.stationlayer_mapping[layer.name()] = {"id": layer.id(), "active": True}
                     self.dlg.textEditStationlayerMapping.setPlainText(str(self.stationlayer_mapping))
 
-                # self.dlg.listWidgetLayers.deleteItem(item)
-
+        # inform about subscribed stations
         if len(subscribed_list) > 0:
             message = str(', '.join(subscribed_list))
         else:
@@ -480,16 +517,17 @@ class QPegel(object):
         level=Qgis.MessageLevel.Info,
         duration=5)
 
+    # assign incoming data to the right layer
     def handle_message(self, msg: dict):
         # get layer fitting to message
         for name in self.stationlayer_mapping.keys():
             if msg["shortname"] == name:
-                mapping_layer = QgsProject.instance().mapLayersByName(name)[0]
+                message_layer = QgsProject.instance().mapLayersByName(name)[0]
                 break
 
         # plot_mapping initialization
         entry = None
-        key = str(mapping_layer.name())
+        key = str(message_layer.name())
         if key not in self.plot_mapping.keys():
             self.plot_mapping[key] = {}
 
@@ -517,7 +555,6 @@ class QPegel(object):
                 "value": msg["timeseries"]["measurement"]["value"],
             })
             self.dlg.textEditPlotMapping.setPlainText(str(self.plot_mapping))
-
             # map layer data storage
             feature = QgsFeature()
             feature.setAttributes([msg["timeseries"]["measurement"]["timestamp"],
@@ -526,16 +563,17 @@ class QPegel(object):
                                    msg["timeseries"]["unit"],
                                    msg["timeseries"]["measurement"].get("type", "measurement")
                                    ])
-            mapping_layer.dataProvider().addFeature(feature)
+            message_layer.dataProvider().addFeature(feature)
             # reload/repaint to show live changes in labels and attribute tables
-            mapping_layer.reload()
+            message_layer.reload()
             self.stations_layer.triggerRepaint()
             # QgsProject.instance().reloadAllLayers()
 
             # create new plot on message for message layer
-            if mapping_layer == self.plot_layer:
+            if message_layer == self.plot_layer:
                 self.prepare_plot()
 
+    # handles unsubscription of selected layers
     def unsubscribebtn_clicked(self):
         unsubscribed_list = []
         for i in range(self.dlg.listWidgetLayers.count()):
@@ -543,15 +581,16 @@ class QPegel(object):
             if item.isSelected():
                 for name, info in self.stationlayer_mapping.items():
                     id, active = info["id"], info["active"]
+                    # unsubscribe if currently subscribed
                     if item.text() == name and active:
+                        unsubscribed_list.append(name)
+                        self.reader.unsubscribe(self.station_index[name]["mqtttopic"])
+                        # styles
                         layer = QgsProject.instance().mapLayersByName(item.text())[0]
                         item.setIcon(QIcon(os.path.join(self.plugin_dir, "img/circle_orange.svg")))
-                        unsubscribed_list.append(name)
-                        # Layer already exists
-                        self.reader.unsubscribe(self.station_index[name]["mqtttopic"])
                         self.stationlayer_mapping[name] = {"id": id, "active": False}
-                        self.dlg.textEditStationlayerMapping.setPlainText(str(self.stationlayer_mapping))
                         layer.loadNamedStyle(os.path.join(self.plugin_dir, "layer-styles/style_inactive.qml"))
+                        self.dlg.textEditStationlayerMapping.setPlainText(str(self.stationlayer_mapping))
                         break
 
         if len(unsubscribed_list) > 0:
@@ -564,26 +603,35 @@ class QPegel(object):
         level=Qgis.MessageLevel.Info,
         duration=5)
 
+    # check for right button enabling
     def check_listwidget(self):
         if self.dlg.listWidgetLayers.count() == 0:
             self.dlg.pushButtonSubscribe.setEnabled(False)
             self.dlg.pushButtonUnsubscribe.setEnabled(False)
             self.dlg.pushButtonRemoveStation.setEnabled(False)
 
+
+
+    ### Station/Layer Remove Handling
+
+    # remove handling from station list
     def removestationbtn_clicked(self):
+        # initialize lists
         delete_layer_list = []
         delete_station_list = []
         delete_unsubscribed_list = []
         for i in range(self.dlg.listWidgetLayers.count()):
             item = self.dlg.listWidgetLayers.item(i)
+            # only remove selected stations
             if item.isSelected():
+                # check for right handling and execute necessary steps
                 if self.stations_layer is None:
                     self.dlg.listWidgetLayers.takeItem(self.dlg.listWidgetLayers.row(item))
+                # collect all stations only in list-widget
                 elif item.text() not in self.stationlayer_mapping.keys():
                     delete_station_list.append(item.text())
                     delete_unsubscribed_list.append(item)
-                elif len(self.stationlayer_mapping) == 0:
-                    pass
+                # collect all stations available as layers & in stationlayer_mapping
                 else:
                     for name, info in self.stationlayer_mapping.items():
                         id, active = info["id"], info["active"]
@@ -596,6 +644,7 @@ class QPegel(object):
         for layer in delete_layer_list:
             QgsProject.instance().removeMapLayer(layer)
         self.check_listwidget()
+        # handles delete steps for unsubscribed stations
         for item in delete_unsubscribed_list:
             self.dlg.listWidgetLayers.takeItem(self.dlg.listWidgetLayers.row(item))
             with edit(self.stations_layer):
@@ -603,6 +652,7 @@ class QPegel(object):
                 for feature in self.stations_layer.getFeatures(request):
                     self.stations_layer.deleteFeature(feature.id())
 
+        # informs about all deleted stations
         self.iface.messageBar().pushMessage(
             "Deleted",
             str(', '.join(delete_station_list)),
@@ -610,19 +660,22 @@ class QPegel(object):
             duration=5,
         )
 
+    # different remove actions for different layers
     def on_layer_removed(self, removed_layer_id):
         remove_list = []
+        # check kind of layer and handle individual removal steps
         if removed_layer_id == self.stations_layer_id:
             QMessageBox.warning(None, "Warning:", f"Warning: \n removed layer is stations layer \n ")
             self.stations_layer = None
-            self.quitsessionbtn_clicked()
+            #self.quitsessionbtn_clicked()
         if removed_layer_id == self.polygon_layer_id:
             self.polygon_layer = None
             self.handle_remove_polygon()
+        # deleting steps for stations
         for name, info in self.stationlayer_mapping.items():
             id, active = info["id"], info["active"]
             if removed_layer_id == id:
-                # remove from stationlayer_mapping
+                # collect stations to delete from mappings
                 if name in self.stationlayer_mapping.keys():
                     remove_list.append(name)
                 # remove from listWidgetLayers
@@ -631,13 +684,14 @@ class QPegel(object):
                     self.dlg.listWidgetLayers.takeItem(self.dlg.listWidgetLayers.row(item))
                 # unsubscribe
                 self.reader.unsubscribe(self.station_index[name]["mqtttopic"])
-                # remove from self.stations_layer
+                # remove feature from self.stations_layer
                 if self.stations_layer is not None:
                     with edit(self.stations_layer):
                         request = QgsFeatureRequest().setFilterExpression(f'"shortname" = \'{name}\'')
                         for feature in self.stations_layer.getFeatures(request):
                             self.stations_layer.deleteFeature(feature.id())
 
+        # remove from stationlayer_mapping & plot_mapping
         for name in remove_list:
             self.stationlayer_mapping.pop(name)
             if name in self.plot_mapping.keys():
@@ -647,18 +701,25 @@ class QPegel(object):
         self.dlg.textEditPlotMapping.setPlainText(str(self.plot_mapping))
         self.dlg.textEditStationlayerMapping.setPlainText(str(self.stationlayer_mapping))
 
+        # quit session if group does not exist
         if self.group is None:
             self.quitsessionbtn_clicked()
 
 
 
     ### View Data
+
+    # initial layer filtering and plot
     def on_main_tab_change(self):
-        # initial layer filtering and plot
         if self.dlg.tabWidget.currentIndex() == 1:
             self.filter_layers()
             self.prepare_plot()
 
+    def on_checkbox_onlysubscribed_change(self, state):
+        print(state)
+        self.filter_layers()
+
+    # filter which layers should appear in the layer selection (only stations)
     def filter_layers(self):
         excepted_layers = []
         for layer in QgsProject.instance().mapLayers().values():
@@ -666,16 +727,17 @@ class QPegel(object):
                 field_names = [field.name() for field in layer.fields()]
                 if not all(field_name in field_names for field_name in ["timestamp", "longname", "value"]):
                     excepted_layers.append(layer)
+                if self.dlg.checkBoxOnlySubscribed.checkState() == Qt.CheckState.Checked:
+                    if layer.name() not in self.stationlayer_mapping.keys():
+                        excepted_layers.append(layer)
+                    elif self.stationlayer_mapping[layer.name()]["active"] == False:
+                        excepted_layers.append(layer)
             else:
                 excepted_layers.append(layer)
-
         self.dlg.mMapLayerComboBox.setExceptedLayerList(excepted_layers)
 
+    # check the state of data and decide for plot variant
     def prepare_plot(self):
-        #print("plot_mapping: ", self.plot_mapping)
-        #print("stationlayer_mapping: ", self.stationlayer_mapping)
-        #print("station_index: ", self.station_index)
-        # check for next steps
         if self.dlg.mMapLayerComboBox:
             self.plot_layer = self.dlg.mMapLayerComboBox.currentLayer()
             if self.plot_layer is not None:
@@ -686,10 +748,11 @@ class QPegel(object):
                         self.prepare_closed_layer_plot()
                         self.update_unit_checkbox()
                 else:
+                    self.dlg.mComboBoxUnit.clear()
                     self.initial_plot()
 
+    # initial empty plot
     def initial_plot(self):
-        # initial empty plot
         self.canvas.figure.clf()
         ax = self.figure.add_subplot(1, 1, 1)
         ax.clear()
@@ -701,8 +764,8 @@ class QPegel(object):
             ax.set_title("Waiting for data...")
         self.canvas.draw()
 
+    # prepare plot if data needs to be fetched from a closed layer
     def prepare_closed_layer_plot(self):
-        print("prepare closed layer: ")
         mapping = {}
         for feature in self.plot_layer.getFeatures():
             d = None
@@ -726,15 +789,7 @@ class QPegel(object):
         self.plot_mapping[self.plot_layer.name()] = mapping
         self.dlg.textEditPlotMapping.setPlainText(str(self.plot_mapping))
 
-    def on_checkbox_historical_change(self, state):
-        station = self.plot_layer.name()
-        if state == Qt.CheckState.Checked:
-            # ToDo: request and add historical data
-            pass
-        else:
-            # ToDo: remove historical data if existing
-            pass
-
+    # set active state in stationlayer_mapping
     def on_checked_unit_change(self, items):
         for key in self.plot_mapping[self.plot_layer.name()]:
             if key not in items:
@@ -743,6 +798,7 @@ class QPegel(object):
         self.update_unit_checkbox()
         self.dlg.textEditPlotMapping.setPlainText(str(self.plot_mapping))
 
+    # updates checkboxes by state & plots when checked units change
     def update_unit_checkbox(self):
         mapping = self.plot_mapping[self.plot_layer.name()]
         self.dlg.mComboBoxUnit.clear()
@@ -752,107 +808,110 @@ class QPegel(object):
                 "active"] else Qt.CheckState.Unchecked)
         self.update_plot()
 
+    # updates plots by new incoming data or checked unit changes
     def update_plot(self):
         if not self.plot_mapping[self.plot_layer.name()]:
-            print(f"no plot_mapping for layer: {self.plot_layer}")
-            return
-        self.canvas.figure.clf()
-        ax = self.figure.add_subplot(1, 1, 1)
-        ax.clear()
+            pass
 
-        colors = plt.cm.tab10.colors
-        for i, longname in enumerate(self.dlg.mComboBoxUnit.checkedItems()):
-            color = colors[i]
-            df = pd.DataFrame(self.plot_mapping[self.plot_layer.name()][longname]["data"], columns=['timestamp', 'value'])
-            ax.plot(df["timestamp"], df["value"], label=longname, color=color, marker='o', markersize=2)
-
-        ax.set_xlabel("Time")
-        ax.set_title(self.dlg.mMapLayerComboBox.currentText())
-        self.canvas.figure.autofmt_xdate()
-        ax.legend()
-        ax.grid(True)
-        self.canvas.draw()
-
-
-    '''
-    def plot_data(self):
+        # initialization
         self.canvas.figure.clf()
         ax_main = self.figure.add_subplot(1, 1, 1)
-        ax_main.clear()
-        ax_main.set_xlabel("Time")
-        ax_main.set_title(self.dlg.mMapLayerComboBox.currentText())
-        # define important values
+        axes = [ax_main]
         colors = plt.cm.tab10.colors
-        checked_longnames: list = self.dlg.mComboBoxUnit.checkedItems()
-        try:
-            # create axes and plots/lines for each existing unit
-            for i, longname in enumerate(checked_longnames):
-                label = longname + " [" + self.units[longname] + "]"
-                data = self.plottable_values[longname]
-                color = colors[i % len(colors)]
-                if i == 0:
-                    curr_ax = ax_main
-                else:
-                    curr_ax = ax_main.twinx()
-                    if i > 1:
-                        offset = (i - 1) * 60
-                        self.canvas.figure.subplots_adjust(right=0.7)  # TODO: find right adjustment for more than 3 axes
-                        curr_ax.spines['right'].set_position(('outward', offset))
-                # fill
-                curr_ax.set_ylabel(label)
-                curr_ax.yaxis.label.set_color(color)
-                plot = curr_ax.plot(self.timestamps, data, label=longname, color=color, marker='o', markersize=2)
 
-            ax_main.xaxis.set_major_formatter(mdates.DateFormatter('%y.%m.%d. %H:%M'))
-            ax_main.xaxis.set_major_locator(mdates.AutoDateLocator())
-            self.canvas.figure.autofmt_xdate()
-            # ax_main.legend( loc='upper mid')
-            # ax_main.legend(lines, [l.get_label() for l in lines], bbox_to_anchor=(0., 1.02, 1., .102), loc=3, ncol=len(self.checked_longnames[layer]), mode="expand", borderaxespad=0.)
-            # self.canvas.figure.subplots_adjust(right=0.8)
-        except Exception as e:
-            print("Exception plot_data: ", e)
+        # plot df of each checked unit
+        for i, longname in enumerate(self.dlg.mComboBoxUnit.checkedItems()):
+            data = self.plot_mapping[self.plot_layer.name()][longname]["data"]
+            df = pd.DataFrame(data, columns=['timestamp', 'value'])
+            unit_short = self.plot_mapping[self.plot_layer.name()][longname]["unit"]
+            color = colors[i]
+            ylabel = f"{longname} [{unit_short}]"
+            # simple plot for 1 checked unit
+            if i == 0:
+                curr_ax = ax_main
+                curr_ax.set_ylabel(ylabel, color=color)
+            # set ax settings for current unit
+            else:
+                curr_ax = ax_main.twinx()
+                axes.append(curr_ax)
+                if i > 0:
+                    offset = (i - 1) * 60
+                    self.canvas.figure.subplots_adjust(right=0.7)
+                    curr_ax.spines['right'].set_position(('outward', offset))
+                curr_ax.set_ylabel(ylabel, color=color)
+            # add current ax to plot
+            curr_ax.plot(df["timestamp"], df["value"], label=longname, color=color, marker='o', markersize=2)
+            curr_ax.tick_params(axis='y', labelcolor=color)
+
+        # general lables and title variations
+        ax_main.set_xlabel("Time")
+        station_name = self.dlg.mMapLayerComboBox.currentText()
+        status = ""
+        if station_name in self.stationlayer_mapping:
+            status = " (subscribed)" if self.stationlayer_mapping[station_name]["active"] else " (not subscribed)"
+        ax_main.set_title(f"{station_name}{status}")
+        # plot appearence settings
+        self.canvas.figure.autofmt_xdate()
+        '''
+        # legend enty for each unit
+        lines = []
+        labels = []
+        for ax in axes:
+            l, lab = ax.get_legend_handles_labels()
+            lines.extend(l)
+            labels.extend(lab)
+        ax_main.legend(lines, labels, loc='upper left', fontsize='small')
+        '''
+        ax_main.grid(True)
+
         self.canvas.draw()
-    '''
+
+
 
     ### reset/restart/quit
+
     # reset for polygon removal
     def handle_remove_polygon(self):
+        # remove if exists, refresh & set states
         if self.polygon_layer is not None:
             QgsProject.instance().removeMapLayer(self.polygon_layer)
             self.polygon_layer = None
-        self.bbox = None
-        self.polygon = None
-        self.iface.actionPan().trigger()
-        # reset buttons
-        self.dlg.pushButtonAddPolygon.setEnabled(True)
-        self.dlg.pushButtonRemovePolygon.setEnabled(False)
-        self.check_listwidget()
-        self.update_request()
+            self.iface.mapCanvas().refresh()
+            self.bbox = None
+            self.polygon = None
+            self.iface.actionPan().trigger()
+            # reset buttons
+            self.dlg.pushButtonAddPolygon.setEnabled(True)
+            self.dlg.pushButtonRemovePolygon.setEnabled(False)
+            self.check_listwidget()
+            self.update_request()
 
+    # quits the session, resets & closes the plugin
     def quitsessionbtn_clicked(self):
+        self.iface.messageBar().pushMessage(
+            "Session quitted",
+            level=Qgis.MessageLevel.Info,
+            duration=2)
         self.handle_remove_polygon()
         if self.group is not None:
             # remove group if task is undone
-            if self.stations_layer is None:
-                if self.group:
-                    self.root.removeChildNode(self.group)
+            if self.stations_layer is None or len(self.stationlayer_mapping) == 0:
+                self.root.removeChildNode(self.group)
             # change layer styles, states & unsubscribe
             else:
+                self.group.setItemVisibilityChecked(False)
+                self.group.setExpanded(False)
+                self.stations_layer.loadNamedStyle(os.path.join(self.plugin_dir, "layer-styles/style_stations_closed.qml"))
                 self.stations_layer = None
-                station_exists = False
-                for child in self.group.children():
-                    layer = child.layer()
-                    if isinstance(layer, QgsVectorLayer):
-                        field_names = [field.name() for field in layer.fields()]
-                        if all(field_name in field_names for field_name in ["timestamp", "longname", "value"]):
-                            station_exists = True
-                            if self.stationlayer_mapping[layer.name()]["active"] is True:
-                                self.reader.unsubscribe(self.station_index[layer.name()]["mqtttopic"])
-                                self.stationlayer_mapping[layer.name()] = {"id": layer.id(), "active": False}
-                            layer.loadNamedStyle(os.path.join(self.plugin_dir, "layer-styles/style_closed.qml"))
-                            layer.setName("[CLOSED] " + layer.name())
-                if station_exists is False:
-                    self.root.removeChildNode(self.group)
+                for name, info in self.stationlayer_mapping.items():
+                    layer = QgsProject.instance().mapLayersByName(name)[0]
+                    station_exists = True
+                    if info["active"] is True:
+                        self.reader.unsubscribe(self.station_index[layer.name()]["mqtttopic"])
+                        self.stationlayer_mapping[layer.name()] = {"id": layer.id(), "active": False}
+                    layer.loadNamedStyle(os.path.join(self.plugin_dir, "layer-styles/style_closed.qml"))
+                    layer.setName("[CLOSED] " + layer.name())
+
         # reset steps
         self.dlg.mGroupBoxUserAuthentification.setCollapsed(False)
         self.dlg.tab1Request.setEnabled(False)
@@ -864,22 +923,23 @@ class QPegel(object):
         self.dlg.lineEditParameter.setText("")
         self.bbox = None
         self.polygon = None
-        self.polygon_layer: QgsVectorLayer = None
-        self.polygon_layer_id: str = ""
-        self.stations_layer: QgsVectorLayer = None
-        self.stations_layer_id: str = ""
-        self.stations_found: bool = False
-        self.url_parameters: dict[str, str] = {}
-        self.request_url: str = ""
-        self.group_name: str = ""
-        self.group: QgsLayerTreeGroup = None
-        self.response_json: dict[str, Any] = None
-        self.station_index: dict[str, Any] = {}
-        self.stationlayer_mapping: dict[str, dict[str, Any]] = {}
+        self.polygon_layer = None
+        self.polygon_layer_id = ""
+        self.stations_layer = None
+        self.stations_layer_id = ""
+        self.stations_found = False
+        self.url_parameters = {}
+        self.request_url = ""
+        self.group_name = ""
+        self.group = None
+        self.response_json = None
+        self.station_index = {}
+        self.stationlayer_mapping = {}
         self.root = QgsProject.instance().layerTreeRoot()
-        self.plot_layer: QgsVectorLayer = None
-        self.plot_mapping: dict[str, dict[dict[str, Any]]] = {}
+        self.plot_layer = None
+        self.plot_mapping = {}
         self.dlg.listWidgetLayers.clear()
+
         # disconnect & close
         self.disconnectbtn_clicked()
         self.dlg.close()

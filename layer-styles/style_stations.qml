@@ -2,8 +2,8 @@
 <qgis labelsEnabled="1" layerType="Vector" styleCategories="Symbology|Labeling" version="3.99.0-Master">
   <renderer-v2 enableorderby="0" forceraster="0" referencescale="-1" symbollevels="0" type="RuleRenderer">
     <rules key="{f6f5ca67-b993-49fe-ab04-a3b1adf6fdd9}">
-      <rule filter="is_layer_visible(&quot;shortname&quot;) IS FALSE" key="{f9fe991b-ff55-456c-bd24-eb72c24d8bdc}" label="Available Stations" symbol="0"/>
-      <rule filter="is_layer_visible(&quot;shortname&quot;) IS True" key="{7b2dad7f-0c65-4da5-aabf-512a2df9baaa}" label="subscribed/unsubscribed Stations" symbol="1"/>
+      <rule filter="is_layer_visible(&quot;shortname&quot;) IS True" key="{5acba2bd-6ae6-4d18-8f6f-f72056bd52c9}" label="subscribed/unsubscribed Stations" symbol="0"/>
+      <rule filter="is_layer_visible(&quot;shortname&quot;) IS False" key="{f9fe991b-ff55-456c-bd24-eb72c24d8bdc}" label="Available Stations" symbol="1"/>
     </rules>
     <symbols>
       <symbol alpha="1" clip_to_extent="1" force_rhr="0" frame_rate="10" is_animated="0" name="0" type="marker">
@@ -14,26 +14,25 @@
             <Option name="type" type="QString" value="collection"/>
           </Option>
         </data_defined_properties>
-        <layer class="SimpleMarker" enabled="1" id="{2eafa9c2-492f-4746-9d3d-00ec01a3437f}" locked="0" pass="0">
+        <layer class="SvgMarker" enabled="1" id="{610cdebb-6fc3-4abd-ba1d-64b8ff6e8a61}" locked="0" pass="2">
           <Option type="Map">
             <Option name="angle" type="QString" value="0"/>
-            <Option name="cap_style" type="QString" value="square"/>
-            <Option name="color" type="QString" value="227,26,28,255,rgb:0.8901961,0.1019608,0.1098039,1"/>
+            <Option name="color" type="QString" value="46,204,113,255,rgb:0.1803922,0.8,0.4431373,1"/>
+            <Option name="fixedAspectRatio" type="QString" value="0"/>
             <Option name="horizontal_anchor_point" type="QString" value="1"/>
-            <Option name="joinstyle" type="QString" value="bevel"/>
-            <Option name="name" type="QString" value="circle"/>
-            <Option name="offset" type="QString" value="0,0"/>
+            <Option name="name" type="QString" value="symbol/blue-marker.svg"/>
+            <Option name="offset" type="QString" value="0,-20"/>
             <Option name="offset_map_unit_scale" type="QString" value="3x:0,0,0,0,0,0"/>
-            <Option name="offset_unit" type="QString" value="MM"/>
+            <Option name="offset_unit" type="QString" value="Pixel"/>
             <Option name="outline_color" type="QString" value="35,35,35,255,rgb:0.1372549,0.1372549,0.1372549,1"/>
-            <Option name="outline_style" type="QString" value="solid"/>
             <Option name="outline_width" type="QString" value="0"/>
             <Option name="outline_width_map_unit_scale" type="QString" value="3x:0,0,0,0,0,0"/>
-            <Option name="outline_width_unit" type="QString" value="MM"/>
+            <Option name="outline_width_unit" type="QString" value="Pixel"/>
+            <Option name="parameters"/>
             <Option name="scale_method" type="QString" value="diameter"/>
-            <Option name="size" type="QString" value="3"/>
+            <Option name="size" type="QString" value="40"/>
             <Option name="size_map_unit_scale" type="QString" value="3x:0,0,0,0,0,0"/>
-            <Option name="size_unit" type="QString" value="MM"/>
+            <Option name="size_unit" type="QString" value="Pixel"/>
             <Option name="vertical_anchor_point" type="QString" value="1"/>
           </Option>
           <data_defined_properties>
@@ -53,14 +52,14 @@
             <Option name="type" type="QString" value="collection"/>
           </Option>
         </data_defined_properties>
-        <layer class="SvgMarker" enabled="1" id="{8994016f-17cd-42b7-b262-fa2662a9eeab}" locked="0" pass="0">
+        <layer class="SvgMarker" enabled="1" id="{610cdebb-6fc3-4abd-ba1d-64b8ff6e8a61}" locked="0" pass="1">
           <Option type="Map">
             <Option name="angle" type="QString" value="0"/>
-            <Option name="color" type="QString" value="231,113,72,255,rgb:0.9058824,0.4431373,0.282353,1"/>
+            <Option name="color" type="QString" value="46,204,113,255,rgb:0.1803922,0.8,0.4431373,1"/>
             <Option name="fixedAspectRatio" type="QString" value="0"/>
             <Option name="horizontal_anchor_point" type="QString" value="1"/>
-            <Option name="name" type="QString" value="symbol/blue-marker.svg"/>
-            <Option name="offset" type="QString" value="0,-25"/>
+            <Option name="name" type="QString" value="symbol/red-marker.svg"/>
+            <Option name="offset" type="QString" value="0,-20"/>
             <Option name="offset_map_unit_scale" type="QString" value="3x:0,0,0,0,0,0"/>
             <Option name="offset_unit" type="QString" value="Pixel"/>
             <Option name="outline_color" type="QString" value="35,35,35,255,rgb:0.1372549,0.1372549,0.1372549,1"/>
@@ -69,7 +68,7 @@
             <Option name="outline_width_unit" type="QString" value="Pixel"/>
             <Option name="parameters"/>
             <Option name="scale_method" type="QString" value="diameter"/>
-            <Option name="size" type="QString" value="50"/>
+            <Option name="size" type="QString" value="40"/>
             <Option name="size_map_unit_scale" type="QString" value="3x:0,0,0,0,0,0"/>
             <Option name="size_unit" type="QString" value="Pixel"/>
             <Option name="vertical_anchor_point" type="QString" value="1"/>
@@ -392,7 +391,7 @@
             <families/>
             <text-buffer bufferBlendMode="0" bufferColor="250,250,250,255,rgb:0.9803922,0.9803922,0.9803922,1" bufferDraw="0" bufferJoinStyle="128" bufferNoFill="1" bufferOpacity="1" bufferSize="1" bufferSizeMapUnitScale="3x:0,0,0,0,0,0" bufferSizeUnits="MM"/>
             <text-mask maskEnabled="0" maskJoinStyle="128" maskOpacity="1" maskSize="1.5" maskSize2="1.5" maskSizeMapUnitScale="3x:0,0,0,0,0,0" maskSizeUnits="MM" maskType="0" maskedSymbolLayers=""/>
-            <background shapeBlendMode="0" shapeBorderColor="128,128,128,255,rgb:0.5019608,0.5019608,0.5019608,1" shapeBorderWidth="0" shapeBorderWidthMapUnitScale="3x:0,0,0,0,0,0" shapeBorderWidthUnit="Point" shapeDraw="0" shapeFillColor="255,255,255,255,rgb:1,1,1,1" shapeJoinStyle="64" shapeOffsetMapUnitScale="3x:0,0,0,0,0,0" shapeOffsetUnit="Point" shapeOffsetX="0" shapeOffsetY="0" shapeOpacity="1" shapeRadiiMapUnitScale="3x:0,0,0,0,0,0" shapeRadiiUnit="Point" shapeRadiiX="2" shapeRadiiY="2" shapeRotation="0" shapeRotationType="0" shapeSVGFile="" shapeSizeMapUnitScale="3x:0,0,0,0,0,0" shapeSizeType="0" shapeSizeUnit="Point" shapeSizeX="3" shapeSizeY="2" shapeType="0">
+            <background shapeBlendMode="0" shapeBorderColor="128,128,128,255,rgb:0.5019608,0.5019608,0.5019608,1" shapeBorderWidth="0" shapeBorderWidthMapUnitScale="3x:0,0,0,0,0,0" shapeBorderWidthUnit="Point" shapeDraw="1" shapeFillColor="255,255,255,255,rgb:1,1,1,1" shapeJoinStyle="64" shapeOffsetMapUnitScale="3x:0,0,0,0,0,0" shapeOffsetUnit="Point" shapeOffsetX="0" shapeOffsetY="0" shapeOpacity="1" shapeRadiiMapUnitScale="3x:0,0,0,0,0,0" shapeRadiiUnit="Point" shapeRadiiX="2" shapeRadiiY="2" shapeRotation="0" shapeRotationType="0" shapeSVGFile="" shapeSizeMapUnitScale="3x:0,0,0,0,0,0" shapeSizeType="0" shapeSizeUnit="Point" shapeSizeX="3" shapeSizeY="2" shapeType="0">
               <symbol alpha="1" clip_to_extent="1" force_rhr="0" frame_rate="10" is_animated="0" name="markerSymbol" type="marker">
                 <data_defined_properties>
                   <Option type="Map">

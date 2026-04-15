@@ -147,7 +147,7 @@
       <item>
        <widget class="QPushButton" name="pushButtonConnect">
         <property name="toolTip">
-         <string>Start connection to MQTT broker</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Start connection to MQTT broker&lt;/p&gt;&lt;p&gt;Internet connection and valid user authentification required&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string>Connect</string>
@@ -222,7 +222,7 @@
        </sizepolicy>
       </property>
       <property name="toolTip">
-       <string>In this tab you can search for stations and subscribe/unsubscribe to their topics</string>
+       <string/>
       </property>
       <property name="currentIndex">
        <number>1</number>
@@ -236,6 +236,9 @@
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string/>
        </property>
        <attribute name="title">
         <string>Request</string>
@@ -435,6 +438,9 @@
                     <height>50</height>
                    </size>
                   </property>
+                  <property name="toolTip">
+                   <string>This field shows the final request URL</string>
+                  </property>
                  </widget>
                 </item>
                 <item>
@@ -455,6 +461,9 @@
                  <widget class="QLineEdit" name="lineEditResponse">
                   <property name="enabled">
                    <bool>false</bool>
+                  </property>
+                  <property name="toolTip">
+                   <string>This field shows how many stations were found in your request(s) in total</string>
                   </property>
                  </widget>
                 </item>
@@ -481,6 +490,9 @@
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
+                    </property>
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;All available stations for your request(s)  &lt;/p&gt;&lt;p&gt;New requests stations are added to the previously requested ones&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="alternatingRowColors">
                      <bool>true</bool>
@@ -534,7 +546,7 @@
                     <item>
                      <widget class="QPushButton" name="pushButtonRemoveStation">
                       <property name="toolTip">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove all selected stations from the list;&lt;/p&gt;&lt;p&gt;all subscribed stations will also be removed from the map&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove all selected stations from the list&lt;/p&gt;&lt;p&gt;All subscribed stations will also be removed from the map&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                       <property name="text">
                        <string>Remove Selected</string>
@@ -598,9 +610,12 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab2ViewLiveData">
+      <widget class="QWidget" name="tab2ViewData">
+       <property name="toolTip">
+        <string/>
+       </property>
        <attribute name="title">
-        <string>View Live Data</string>
+        <string>View Data</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_5">
         <item>
@@ -611,7 +626,18 @@
          </widget>
         </item>
         <item>
-         <widget class="QgsMapLayerComboBox" name="mMapLayerComboBox"/>
+         <widget class="QgsMapLayerComboBox" name="mMapLayerComboBox">
+          <property name="toolTip">
+           <string>Change the layer for plotting</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBoxOnlySubscribed">
+          <property name="text">
+           <string>olny show currently subscribed layers</string>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QLabel" name="label_2">
@@ -621,7 +647,11 @@
          </widget>
         </item>
         <item>
-         <widget class="QgsCheckableComboBox" name="mComboBoxUnit"/>
+         <widget class="QgsCheckableComboBox" name="mComboBoxUnit">
+          <property name="toolTip">
+           <string>Select the visible units to show inside the plot</string>
+          </property>
+         </widget>
         </item>
         <item>
          <layout class="QVBoxLayout" name="verticalLayoutPlot"/>
@@ -681,7 +711,7 @@
       <item>
        <widget class="QPushButton" name="pushButtonHelp">
         <property name="toolTip">
-         <string>Open the Documentation</string>
+         <string>Open instructions</string>
         </property>
         <property name="text">
          <string>Help</string>
@@ -703,6 +733,9 @@
       </item>
       <item>
        <widget class="QPushButton" name="pushButtonQuitSession">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Quit the current session including&lt;/p&gt;&lt;p&gt;- unsubscribing all topics&lt;/p&gt;&lt;p&gt;- complete plugin reset &lt;/p&gt;&lt;p&gt;- closing the UI&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="text">
          <string>Quit Session</string>
         </property>

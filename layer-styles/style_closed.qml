@@ -14,7 +14,7 @@
           <Option type="Map">
             <Option name="angle" type="QString" value="0"/>
             <Option name="cap_style" type="QString" value="square"/>
-            <Option name="color" type="QString" value="227,26,28,255,rgb:0.8901961,0.1019608,0.1098039,1"/>
+            <Option name="color" type="QString" value="155,155,155,145,hsv:0.99833333492279053,0,0.60759902000427246,0.56874954700469971"/>
             <Option name="horizontal_anchor_point" type="QString" value="1"/>
             <Option name="joinstyle" type="QString" value="bevel"/>
             <Option name="name" type="QString" value="circle"/>
