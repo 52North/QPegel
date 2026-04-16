@@ -25,7 +25,6 @@ from qgis.PyQt.QtWidgets import *
 from qgis.PyQt.QtCore import *
 
 from qgis.core import *
-from qgis import processing
 
 from PyQt6.QtCore import *
 from PyQt6.QtWidgets import QMessageBox
@@ -40,12 +39,8 @@ from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas,
     NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
 
 import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 
 from .QPegel_dialog import QPegelDialog
 from .mqtt_connector import EDISConnector
@@ -98,7 +93,7 @@ class QPegel(object):
 
         # add some additional UI elements
         self.dlg.verticalLayoutPlot.addWidget(self.canvas)
-        self.toolbar = NavigationToolbar(self.canvas, self.iface.mainWindow())
+        self.toolbar: NavigationToolbar = NavigationToolbar(self.canvas, self.iface.mainWindow())
         self.dlg.verticalLayoutPlot.addWidget(self.toolbar)
 
     def initGui(self):
@@ -135,7 +130,8 @@ class QPegel(object):
         self.dlg.lineEditQ.editingFinished.connect(self.update_request)
         self.dlg.tabWidget.currentChanged.connect(self.on_main_tab_change)
         self.dlg.mMapLayerComboBox.layerChanged.connect(self.prepare_plot)
-        self.dlg.checkBoxOnlySubscribed.checkStateChanged.connect(self.on_checkbox_onlysubscribed_change)
+        #self.dlg.checkBoxHistorical.checkStateChanged.connect(self.on_checkbox_historical_change)
+        self.dlg.checkBoxOnlySubscribed.checkStateChanged.connect(self.filter_layers)
         self.dlg.mComboBoxUnit.checkedItemsChanged.connect(self.on_checked_unit_change)
         QgsProject.instance().layerRemoved.connect(self.on_layer_removed)
 
@@ -170,13 +166,13 @@ class QPegel(object):
     # connects to reader with user data
     def connectbtn_clicked(self):
         #self.dlg.tabWidget.setCurrentWidget(self.dlg.tabWidget.findChild(QWidget, "tab1Request"))
+        # declare userdata
+        hostname = self.dlg.lineEditHostname.text()
+        port = int(self.dlg.lineEditPort.text())
+        username = self.dlg.lineEditUsername.text()
+        password = self.dlg.mLineEditPassword.text()
+        # create reader
         try:
-            # declare userdata
-            hostname = self.dlg.lineEditHostname.text()
-            port = int(self.dlg.lineEditPort.text())
-            username = self.dlg.lineEditUsername.text()
-            password = self.dlg.mLineEditPassword.text()
-            # create reader
             self.reader = EDISConnector(parent=self.dlg, hostname=hostname, port=port, username=username,
                                         password=password)
             # receive and handle messages by reader
@@ -694,10 +690,6 @@ class QPegel(object):
         self.dlg.textEditPlotMapping.setPlainText(str(self.plot_mapping))
         self.dlg.textEditStationlayerMapping.setPlainText(str(self.stationlayer_mapping))
 
-        # quit session if group does not exist
-        if self.group is None:
-            self.quitsessionbtn_clicked()
-
 
 
     ### View Data
@@ -708,18 +700,16 @@ class QPegel(object):
             self.filter_layers()
             self.prepare_plot()
 
-    def on_checkbox_onlysubscribed_change(self, state):
-        print(state)
-        self.filter_layers()
-
     # filter which layers should appear in the layer selection (only stations)
     def filter_layers(self):
         excepted_layers = []
         for layer in QgsProject.instance().mapLayers().values():
+            # check if layer is of type vector and contains the typical station attributes
             if isinstance(layer, QgsVectorLayer):
                 field_names = [field.name() for field in layer.fields()]
                 if not all(field_name in field_names for field_name in ["timestamp", "longname", "value"]):
                     excepted_layers.append(layer)
+                # add all inactive layers
                 if self.dlg.checkBoxOnlySubscribed.checkState() == Qt.CheckState.Checked:
                     if layer.name() not in self.stationlayer_mapping.keys():
                         excepted_layers.append(layer)
@@ -762,16 +752,17 @@ class QPegel(object):
         mapping = {}
         for feature in self.plot_layer.getFeatures():
             d = None
-            if feature["longname"] not in mapping:
-                d = {
-                    "data": [],
-                    "unit": feature["unit"],
-                    "type": feature["type"],
-                    "active": True
-                }
-                mapping[feature["longname"]] = d
-            else:
-                d = mapping[feature["longname"]]
+            if feature:
+                if feature["longname"] not in mapping:
+                    d = {
+                        "data": [],
+                        "unit": feature["unit"],
+                        "type": feature["type"],
+                        "active": True
+                    }
+                    mapping[feature["longname"]] = d
+                else:
+                    d = mapping[feature["longname"]]
             # Parse data
             d["data"].append(
                 {
