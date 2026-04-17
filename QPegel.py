@@ -80,6 +80,7 @@ class QPegel(object):
         self.group: QgsLayerTreeGroup = None
         self.response_json: dict[str, Any] = None
         self.station_index: dict[str, Any] = {}
+        self.msg_counter: int = 0
         # layers
         # self.stationlayer_mapping = {name: {id: str, active: bool}}
         self.stationlayer_mapping: dict[str, dict[str, str | bool]] = {}
@@ -497,17 +498,19 @@ class QPegel(object):
 
         # inform about subscribed stations
         if len(subscribed_list) > 0:
-            message = str(', '.join(subscribed_list))
+            message = f"{len(subscribed_list)} stations - Receiving data can take a few minutes, please wait..."
         else:
             message = "No station subscribed"
         self.iface.messageBar().pushMessage(
         "Subscribed: ",
         message,
         level=Qgis.MessageLevel.Info,
-        duration=5)
+        duration=10)
 
     # assign incoming data to the right layer
     def handle_message(self, msg: dict):
+        self.msg_counter += 1
+        self.dlg.labelMessageCount.setText(f"Total messages received: {self.msg_counter}")
         # get layer fitting to message
         for name in self.stationlayer_mapping.keys():
             if msg["shortname"] == name:
@@ -919,7 +922,7 @@ class QPegel(object):
         self.response_json = None
         self.station_index = {}
         self.stationlayer_mapping = {}
-        self.root = QgsProject.instance().layerTreeRoot()
+        self.msg_counter = 0
         self.plot_layer = None
         self.plot_mapping = {}
         self.dlg.listWidgetLayers.clear()
