@@ -257,8 +257,11 @@
       <property name="toolTip">
        <string/>
       </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab1Request">
        <property name="enabled">
@@ -708,7 +711,7 @@
         <string/>
        </property>
        <property name="autoFillBackground">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
        <attribute name="title">
         <string>View Data</string>
@@ -725,6 +728,9 @@
          <widget class="QgsMapLayerComboBox" name="mMapLayerComboBox">
           <property name="toolTip">
            <string>Change the layer for plotting</string>
+          </property>
+          <property name="autoFillBackground">
+           <bool>false</bool>
           </property>
          </widget>
         </item>

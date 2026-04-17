@@ -129,10 +129,10 @@ class QPegel(object):
         self.dlg.lineEditGewaesser.editingFinished.connect(self.update_request)
         self.dlg.lineEditParameter.editingFinished.connect(self.update_request)
         self.dlg.lineEditQ.editingFinished.connect(self.update_request)
-        self.dlg.tabWidget.currentChanged.connect(self.on_main_tab_change)
+        self.dlg.tabWidget.currentChanged.connect(self.on_plot_layer_change)
         self.dlg.mMapLayerComboBox.layerChanged.connect(self.prepare_plot)
         #self.dlg.checkBoxHistorical.checkStateChanged.connect(self.on_checkbox_historical_change)
-        self.dlg.checkBoxOnlySubscribed.checkStateChanged.connect(self.filter_layers)
+        self.dlg.checkBoxOnlySubscribed.checkStateChanged.connect(self.on_checkbox_plotlayers_change)
         self.dlg.mComboBoxUnit.checkedItemsChanged.connect(self.on_checked_unit_change)
         QgsProject.instance().layerRemoved.connect(self.on_layer_removed)
 
@@ -166,7 +166,7 @@ class QPegel(object):
 
     # connects to reader with user data
     def connectbtn_clicked(self):
-        #self.dlg.tabWidget.setCurrentWidget(self.dlg.tabWidget.findChild(QWidget, "tab1Request"))
+        self.dlg.tabWidget.setCurrentWidget(self.dlg.tabWidget.findChild(QWidget, "tab1Request"))
         # declare userdata
         hostname = self.dlg.lineEditHostname.text()
         port = int(self.dlg.lineEditPort.text())
@@ -698,9 +698,18 @@ class QPegel(object):
     ### View Data
 
     # initial layer filtering and plot
-    def on_main_tab_change(self):
+    def on_plot_layer_change(self):
         if self.dlg.tabWidget.currentIndex() == 1:
             self.filter_layers()
+            self.prepare_plot()
+
+    def on_checkbox_plotlayers_change(self):
+        print("checkstate ", self.dlg.checkBoxOnlySubscribed.checkState(), self.dlg.mMapLayerComboBox.currentLayer())
+        self.filter_layers()
+        if self.dlg.checkBoxOnlySubscribed.checkState() == Qt.CheckState.Checked:
+            self.dlg.mComboBoxUnit.clear()
+            self.initial_plot()
+        else:
             self.prepare_plot()
 
     # filter which layers should appear in the layer selection (only stations)
@@ -724,18 +733,24 @@ class QPegel(object):
 
     # check the state of data and decide for plot variant
     def prepare_plot(self):
+        print("prepare plot start")
         if self.dlg.mMapLayerComboBox:
+            print("prepare plot Combobox")
             self.plot_layer = self.dlg.mMapLayerComboBox.currentLayer()
+            print("prepare plot layer ", self.plot_layer)
             if self.plot_layer is not None:
                 if len(self.plot_layer) > 0:
                     if self.plot_layer.name() in self.plot_mapping.keys():
                         self.update_unit_checkbox()
                     else:
+                        print("closed layer")
                         self.prepare_closed_layer_plot()
                         self.update_unit_checkbox()
                 else:
                     self.dlg.mComboBoxUnit.clear()
                     self.initial_plot()
+            else:
+                self.figure.clear()
 
     # initial empty plot
     def initial_plot(self):
@@ -799,6 +814,8 @@ class QPegel(object):
     def update_plot(self):
         if not self.plot_mapping[self.plot_layer.name()]:
             pass
+        if self.dlg.mMapLayerComboBox.currentLayer() is None:
+            print("no layer available")
 
         # initialization
         self.canvas.figure.clf()
