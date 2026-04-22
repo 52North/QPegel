@@ -10,8 +10,14 @@
     <x>0</x>
     <y>0</y>
     <width>683</width>
-    <height>876</height>
+    <height>1698</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="minimumSize">
    <size>
@@ -26,6 +32,12 @@
    <string>QPegel</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <property name="minimumSize">
     <size>
      <width>200</width>
@@ -36,7 +48,7 @@
     <item>
      <widget class="QgsCollapsibleGroupBox" name="mGroupBoxUserAuthentification">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+       <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -248,12 +260,6 @@
       <property name="enabled">
        <bool>true</bool>
       </property>
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
       <property name="toolTip">
        <string/>
       </property>
@@ -266,12 +272,6 @@
       <widget class="QWidget" name="tab1Request">
        <property name="enabled">
         <bool>false</bool>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
        </property>
        <property name="toolTip">
         <string/>
@@ -299,8 +299,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>629</width>
-             <height>459</height>
+             <width>643</width>
+             <height>639</height>
             </rect>
            </property>
            <property name="autoFillBackground">
@@ -328,12 +328,6 @@
                     <property name="enabled">
                      <bool>false</bool>
                     </property>
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
                     <property name="toolTip">
                      <string>Optionel: draw a polygon inside the map and finish by right-klicking</string>
                     </property>
@@ -346,12 +340,6 @@
                    <widget class="QPushButton" name="pushButtonRemovePolygon">
                     <property name="enabled">
                      <bool>false</bool>
-                    </property>
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
                     </property>
                     <property name="toolTip">
                      <string>Remove the current polygon from the map and request</string>
@@ -451,12 +439,6 @@
                  <layout class="QHBoxLayout" name="horizontalLayout_2">
                   <item>
                    <widget class="QPushButton" name="pushButtonSend">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
                     <property name="toolTip">
                      <string>By sending the request you will receive the available stations as response in the next fields</string>
                     </property>
@@ -501,7 +483,7 @@
                   <property name="maximumSize">
                    <size>
                     <width>16777215</width>
-                    <height>50</height>
+                    <height>60</height>
                    </size>
                   </property>
                   <property name="toolTip">
@@ -551,11 +533,11 @@
                  <layout class="QHBoxLayout" name="horizontalLayout_3">
                   <item>
                    <widget class="QListWidget" name="listWidgetLayers">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>250</height>
+                     </size>
                     </property>
                     <property name="toolTip">
                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;All available stations for your request(s)  &lt;/p&gt;&lt;p&gt;New requests stations are added to the previously requested ones&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -578,12 +560,6 @@
                    <layout class="QVBoxLayout" name="verticalLayout_7">
                     <item>
                      <widget class="QPushButton" name="pushButtonSelectAll">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
                       <property name="toolTip">
                        <string>Select all available stations</string>
                       </property>
@@ -594,12 +570,6 @@
                     </item>
                     <item>
                      <widget class="QPushButton" name="pushButtonUnselectAll">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
                       <property name="toolTip">
                        <string>Unselect all available stations</string>
                       </property>
@@ -623,12 +593,6 @@
                     </item>
                     <item>
                      <widget class="QPushButton" name="pushButtonRemoveStation">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
                       <property name="toolTip">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove all selected stations from the list&lt;/p&gt;&lt;p&gt;All subscribed stations will also be removed from the map&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
@@ -648,12 +612,6 @@
                     <property name="enabled">
                      <bool>false</bool>
                     </property>
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
                     <property name="toolTip">
                      <string>Subscribe to all selected stations</string>
                     </property>
@@ -666,12 +624,6 @@
                    <widget class="QPushButton" name="pushButtonUnsubscribe">
                     <property name="enabled">
                      <bool>false</bool>
-                    </property>
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
                     </property>
                     <property name="toolTip">
                      <string>Unsubscribe to all selected stations</string>
@@ -729,15 +681,12 @@
           <property name="toolTip">
            <string>Change the layer for plotting</string>
           </property>
-          <property name="autoFillBackground">
-           <bool>false</bool>
-          </property>
          </widget>
         </item>
         <item>
          <widget class="QCheckBox" name="checkBoxOnlySubscribed">
           <property name="text">
-           <string>olny show currently subscribed layers</string>
+           <string>only show currently subscribed layers</string>
           </property>
          </widget>
         </item>
@@ -785,7 +734,7 @@
              <x>0</x>
              <y>0</y>
              <width>643</width>
-             <height>434</height>
+             <height>639</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_10">
@@ -880,6 +829,9 @@
      <spacer name="verticalSpacer_3">
       <property name="orientation">
        <enum>Qt::Orientation::Vertical</enum>
+      </property>
+      <property name="sizeType">
+       <enum>QSizePolicy::Policy::Expanding</enum>
       </property>
       <property name="sizeHint" stdset="0">
        <size>

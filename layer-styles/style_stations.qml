@@ -2,7 +2,7 @@
 <qgis labelsEnabled="1" layerType="Vector" styleCategories="Symbology|Labeling" version="3.99.0-Master">
   <renderer-v2 enableorderby="0" forceraster="0" referencescale="-1" symbollevels="0" type="RuleRenderer">
     <rules key="{f6f5ca67-b993-49fe-ab04-a3b1adf6fdd9}">
-      <rule filter="is_layer_visible(&quot;shortname&quot;) IS True" key="{5acba2bd-6ae6-4d18-8f6f-f72056bd52c9}" label="subscribed/unsubscribed Stations" symbol="0"/>
+      <rule filter="is_layer_visible(&quot;shortname&quot;) IS True" key="{5acba2bd-6ae6-4d18-8f6f-f72056bd52c9}" label="Subscribed/ Unsubscribed Stations" symbol="0"/>
       <rule filter="is_layer_visible(&quot;shortname&quot;) IS False" key="{f9fe991b-ff55-456c-bd24-eb72c24d8bdc}" label="Available Stations" symbol="1"/>
     </rules>
     <symbols>
