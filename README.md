@@ -3,9 +3,9 @@
 
 [![QGIS Plugin](https://img.shields.io/badge/QGIS-Plugin-green)](https://plugins.qgis.org/plugins/quick_map_services/) [![License](https://img.shields.io/badge/license-GPL%20v3%2B-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
-A QGIS plugin for interactive hydrological sensor station discovery via DICT-API and real-time, push-based data visualization using the MQTT protocol.
+A QGIS plugin for interactive hydrological sensor station discovery via **DICT-API** and real-time, push-based data visualization using the **MQTT** protocol.
 
-The plugin was developed based on the [PegelOnline](https://www.pegelonline.wsv.de/gast/start) and [EDIS](https://www.itzbund.de/DE/itloesungen/egovernment/echtzeitdateninfrastruktur/edis.html) project.
+The plugin was developed based on the [PegelOnline](https://www.pegelonline.wsv.de/gast/start) and [EDIS](https://www.itzbund.de/DE/itloesungen/egovernment/echtzeitdateninfrastruktur/edis.html) projects.
 
 ![GIF](img/readme_img/Screencast_Example.gif)
 
@@ -21,11 +21,11 @@ The plugin was developed based on the [PegelOnline](https://www.pegelonline.wsv.
 2. In QGIS open from menu: Plugins -> Manage and Install Plugins... -> Install from ZIP
 3. Choose QPegel-master.zip
 4. Click "Install Plugin"
-5. Choose **Yes**
+5. Click **Yes**
 
 <img src="img/readme_img/security_warning.png" width="300"/>
 
-6. For the next two screens, check the settings and choose **OK**
+6. For the next two screens, check the settings and click **OK**
 
 <img src="img/readme_img/install_qpip.png" width="400"/>
 <img src="img/readme_img/manage_dependencies.png" width="500"/>
@@ -35,25 +35,31 @@ The plugin was developed based on the [PegelOnline](https://www.pegelonline.wsv.
 
 ## Core Features
 ### Station Search & Handling
-- Integrated DICT-API for easy map- and parameter-based station search
+**Search:** Integrated DICT-API for easy map- and parameter-based station search
+
 <img src="img/readme_img/station_search.png" width="300"/>
-- Station handling: subscribe, unsubscribe or remove selected stations
+
+**Handling:** subscribe, unsubscribe or remove selected stations
+
 <img src="img/readme_img/station_handling.png" width="300"/>
 
 ### Visualization
-- Plots: view data (updating automatically with new incoming data)
+**Plots:** view data (updating automatically with new incoming data)
+
 <img src="img/readme_img/plots.png" width="300"/>
 
-- Map: view stations and latest measurement in the map canvas            
+**Map:** view stations and latest measurement in the map canvas      
+
 <img src="img/readme_img/layer_view.png" width="300"/>
 <img src="img/readme_img/map_view.png" width="800"/>
 
 ## Usage
-> This plugin is only usable with valid user data. If you are interested to test it, contact us at 52°North
+### Information
+> - This plugin is only usable with valid user data. If you are interested to use it, contact us at 52°North
 > 
-> To connect and receive data a stable internet connection is required.
+> - To connect and receive data a stable internet connection is required.
 > 
-> If interested, find more detailed information in the [Documentation](https://github.com/Juliarotert/QPegel/blob/master/docs/documentation.md) 
+> - If interested, find more detailed information in the [Documentation](https://github.com/Juliarotert/QPegel/blob/master/docs/documentation.md) 
 
 ### Example Workflow
 1. Login
