@@ -23,12 +23,12 @@ The plugin was developed based on the [PegelOnline](https://www.pegelonline.wsv.
 4. Click "Install Plugin"
 5. Choose **Yes**
 
-<img src="img/readme_img/security_warning.svg" width="300"/>
+<img src="img/readme_img/security_warning.png" width="300"/>
 
 6. For the next two screens, check the settings and choose **OK**
 
-<img src="img/readme_img/install_qpip.svg" width="400"/>
-<img src="img/readme_img/manage_dependencies.svg" width="500"/>
+<img src="img/readme_img/install_qpip.png" width="400"/>
+<img src="img/readme_img/manage_dependencies.png" width="500"/>
 
 7. Check for the QPegel logo in your toolbars
     - if necessary, add the "Plugins Toolbar" to your QGIS interface
@@ -36,16 +36,17 @@ The plugin was developed based on the [PegelOnline](https://www.pegelonline.wsv.
 ## Core Features
 ### Station Search & Handling
 - Integrated DICT-API for easy map- and parameter-based station search
-<img src="img/readme_img/station_search.svg" width="300"/>
+<img src="img/readme_img/station_search.png" width="300"/>
 - Station handling: subscribe, unsubscribe or remove selected stations
-<img src="img/readme_img/station_handling.svg" width="300"/>
+<img src="img/readme_img/station_handling.png" width="300"/>
 
 ### Visualization
 - Plots: view data (updating automatically with new incoming data)
-<img src="img/readme_img/plots.svg" width="300"/>
+<img src="img/readme_img/plots.png" width="300"/>
+
 - Map: view stations and latest measurement in the map canvas            
-<img src="img/readme_img/layer_view.svg" width="300"/>
-<img src="img/readme_img/map_view.svg" width="800"/>
+<img src="img/readme_img/layer_view.png" width="300"/>
+<img src="img/readme_img/map_view.png" width="800"/>
 
 ## Usage
 > This plugin is only usable with valid user data. If you are interested to test it, contact us at 52°North
