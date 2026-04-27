@@ -10,32 +10,42 @@ The plugin was developed based on the [PegelOnline](https://www.pegelonline.wsv.
 ![GIF](img/readme_img/Screencast_Example.gif)
 
 ## Installation
+### Dependencies
+- qpip
+- paho-mqtt
+- pandas
+- matplotlib
+
 ### Installation via zip
 1. Download QPegel from Github
 2. In QGIS open from menu: Plugins -> Manage and Install Plugins... -> Install from ZIP
 3. Choose QPegel-master.zip
 4. Click "Install Plugin"
 5. Choose **Yes**
-![security_warning.svg](img/readme_img/security_warning.svg)
+
+<img src="img/readme_img/security_warning.svg" width="300"/>
+
 6. For the next two screens, check the settings and choose **OK**
-![pip](img/readme_img/install_qpip.svg)
-![dependencies](img/readme_img/manage_dependencies.svg)
+
+<img src="img/readme_img/install_qpip.svg" width="400"/>
+<img src="img/readme_img/manage_dependencies.svg" width="500"/>
+
 7. Check for the QPegel logo in your toolbars
     - if necessary, add the "Plugins Toolbar" to your QGIS interface
 
 ## Core Features
 ### Station Search & Handling
 - Integrated DICT-API for easy map- and parameter-based station search
-![station search](img/readme_img/station_search.svg)
+<img src="img/readme_img/station_search.svg" width="300"/>
 - Station handling: subscribe, unsubscribe or remove selected stations
-![station handling](img/readme_img/station_handling.svg)
+<img src="img/readme_img/station_handling.svg" width="300"/>
 
 ### Visualization
 - Plots: view data (updating automatically with new incoming data)
-![plot](img/readme_img/plots.svg)
-- Map: view stations and latest measurement in the map canvas
-![layers](img/readme_img/layer_view.svg)
-![map](img/readme_img/map_view.svg)
+<img src="img/readme_img/plots.svg" width="300"/>
+- Map: view stations and latest measurement in the map canvas            
+<img src="img/readme_img/layer_view.svg" width="300"/>
+<img src="img/readme_img/map_view.svg" width="800"/>
 
 ## Usage
 > This plugin is only usable with valid user data. If you are interested to test it, contact us at 52°North
