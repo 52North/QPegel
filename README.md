@@ -1,5 +1,5 @@
 
-# QPegel ![logo_small.svg](img/readme_img/logo_small.svg)
+# QPegel <img src="docs/img/QPegel_logo.svg" align="right" width="15%"/>
 
 [![QGIS Plugin](https://img.shields.io/badge/QGIS-Plugin-green)](https://plugins.qgis.org/plugins/quick_map_services/) [![License](https://img.shields.io/badge/license-GPL%20v3%2B-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
@@ -7,7 +7,7 @@ A QGIS plugin for interactive hydrological sensor station discovery via **DICT-A
 
 The plugin was developed based on the [PegelOnline](https://www.pegelonline.wsv.de/gast/start) and [EDIS](https://www.itzbund.de/DE/itloesungen/egovernment/echtzeitdateninfrastruktur/edis.html) projects.
 
-![GIF](img/readme_img/Screencast_Example.gif)
+![Screencast_new_data.gif](docs/Screencast_new_data.gif)
 
 ## Installation
 ### Dependencies
@@ -21,60 +21,56 @@ The plugin was developed based on the [PegelOnline](https://www.pegelonline.wsv.
 2. In QGIS open from menu: Plugins -> Manage and Install Plugins... -> Install from ZIP
 3. Choose QPegel-master.zip
 4. Click "Install Plugin"
-5. Click **Yes**
-
-<img src="img/readme_img/security_warning.png" width="300"/>
-
-6. For the next two screens, check the settings and click **OK**
-
-<img src="img/readme_img/install_qpip.png" width="400"/>
-<img src="img/readme_img/manage_dependencies.png" width="500"/>
-
-7. Check for the QPegel logo in your toolbars
+5. Click **Yes**\
+<img src="docs/img/security_warning.png" width="50%"/>
+6. For the next two screens, check the settings and click **OK**\
+<img src="docs/img/qpip_install.png" width="60%"/>\
+<img src="docs/img/dependency_manager.png" width="80%"/>
+7. Check for the QPegel logo in your QGIS toolbars
     - if necessary, add the "Plugins Toolbar" to your QGIS interface
 
 ## Core Features
 ### Station Search & Handling
-**Search:** Integrated DICT-API for easy map- and parameter-based station search
+**Search:** Integrated DICT-API for easy map- and parameter-based station search\
+<img src="docs/img/station_search.png" width="50%"/>
 
-<img src="img/readme_img/station_search.png" width="300"/>
-
-**Handling:** subscribe, unsubscribe or remove selected stations
-
-<img src="img/readme_img/station_handling.png" width="300"/>
+**Handling:** subscribe, unsubscribe or remove selected stations\
+<img src="docs/img/station_handling.png" width="50%"/>
 
 ### Visualization
-**Plots:** view data (updating automatically with new incoming data)
+**Plots:** view data (updating automatically with new incoming data)\
+<img src="docs/img/view_data.png" width="70%"/>\
 
-<img src="img/readme_img/plots.png" width="300"/>
-
-**Map:** view stations and latest measurement in the map canvas      
-
-<img src="img/readme_img/layer_view.png" width="300"/>
-<img src="img/readme_img/map_view.png" width="800"/>
+**Map:** view stations and latest measurement in the map canvas\
+<img src="docs/img/layer_view.png" width="40%"/>\
+<img src="docs/img/map_view.png" width="100%"/>
 
 ## Usage
 ### Information
-> - This plugin is only usable with valid user data. If you are interested to use it, contact us at 52°North
+> - This plugin is only usable with valid user data. If you are interested to use it, contact 52°North.
+> 
+> - A minimum QGIS version of 3.99 is required.
 > 
 > - To connect and receive data a stable internet connection is required.
 > 
 > - If interested, find more detailed information in the [Documentation](https://github.com/Juliarotert/QPegel/blob/master/docs/documentation.md) 
 
 ### Example Workflow
+Optional: Add PegelOnline WMS to your project: https://pegelonline.wsv.de/webservices/gis/wms/aktuell/mnwmhw?request=GetCapabilities&service=WMS&version=1.3.0
+
 1. Login
-    - fill in the user data and **connect**
+    - fill in the user data and click **Connect**
 2. Set request parmeters (Tab "Request")
-    - define AOI
+    - define your AOI
         - click **Draw Area of Interest**
-        - draw a polygon inside the map 
+        - draw a polygon in the map 
         - finish by right-clicking
     - add parameters
         - open **Additional Parameters** 
-        - add a river (located in your AOI)
-3. **Send Request**
-    - info: you can send multiple requests with different parameters, the new stations will be appended to the previously retrieved ones
-    - if there is no parameter input, you will receive all existing stations
+        - add a river (located in your AOI!)
+    - **info:** if there is no parameter input, you will receive all existing stations
+3. Click **Send Request**
+    - **info:** you can send multiple requests with different parameters, the new stations will be appended to the previously retrieved ones
 5. Select Available Stations of Interest
 6. **Subscribe**
     - the selected stations are added to the layer panel and will store incoming data (have a look in the attribute table later)
