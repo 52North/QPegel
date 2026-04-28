@@ -1,13 +1,13 @@
-# QPegel Documentation <img src="img/QPegel_logo.svg" align="right" width="25%"/>
+# QPegel Documentation <img src="img/QPegel_logo.svg" align="right" width="15%"/>
 
 ... work in progress ...
 
 ## Table of Contents
 1. [Intro](#Intro)
-3. [Plugin Concept](#Plugin Concept)
-2. [Features](#Features)
-5. [Functionalities](#Functionalities)
-6. [Best Practices](#Best Practices)
+2. [Plugin Concept](#Concept)
+3. [Features](#Features)
+4. [Functionalities](#Functionalities)
+5. [Tips](#Tips)
 
 ## Intro
 - Description
@@ -18,7 +18,7 @@
   - EDIS
     - Components/ Concept
 
-## Plugin Concept
+## Concept
 ### Sessions
 Definition of a Session in QPegel: 
 - Session Start: with successful connection
@@ -160,13 +160,13 @@ Parameter "station" = Kollmar
 **Stationlayer mapping:**
 ```json
 {
-    'GLÜCKSTADT': {
-        'id': 'GL_CKSTADT_6db8b794_33c1_4680_b683_dac2de1ccc12',
-        'active': False
+    "GLÜCKSTADT": {
+        "id": "GL_CKSTADT_6db8b794_33c1_4680_b683_dac2de1ccc12",
+        "active": False
     },
-    'KRAUTSAND REEDE': {
-        'id': 'KRAUTSAND_REEDE_f2801a1e_bb74_4c4a_a690_d0e6e62370a0',
-        'active': True
+    "KRAUTSAND REEDE": {
+        "id": "KRAUTSAND_REEDE_f2801a1e_bb74_4c4a_a690_d0e6e62370a0",
+        "active": True
     }
  }
 ```
@@ -174,16 +174,16 @@ Parameter "station" = Kollmar
 **Plot Mapping:**
 ```json
 {
-    'GLÜCKSTADT': {   
-        'Wasserstand': {
-            'data': [{
-                    'timestamp': Timestamp('2026-04-13 11:03:00+0200', tz='UTC+02:00'), 
-                    'value': 588.7
+    "GLÜCKSTADT": {   
+        "Wasserstand": {
+            "data": [{
+                    "timestamp": Timestamp("2026-04-13 11:03:00+0200", tz="UTC+02:00"), 
+                    "value": 588.7
              }],
-             'timestamps': [Timestamp('2026-04-13 11:03:00+0200')],
-             'unit': 'cm',
-             'type': 'measurement',
-             'active': True
+             "timestamps": [Timestamp("2026-04-13 11:03:00+0200")],
+             "unit": "cm",
+             "type": "measurement",
+             "active": True
          }
     }
 }
@@ -192,19 +192,18 @@ Parameter "station" = Kollmar
 ## Features
 ### Login states
 
-|                      state                      | meaning                                                                                        |
-|:-----------------------------------------------:|------------------------------------------------------------------------------------------------|
-|   <img src="img/connected.png" width="70%"/>    | currently connected to MQTT Broker                                                             |
-|  <img src="img/disconnected.png" width="70%"/>  | not yet connected or intentionally disconnected                                                |
-|     <img src="img/error.png" width="70%"/>      | connection went wrong: <br/>problems could be invalid user data or loss of internet connection |
+|                     state                      | meaning                                                                                        |
+|:----------------------------------------------:|------------------------------------------------------------------------------------------------|
+|  <img src="img/connected.png" width="100%"/>   | currently connected to MQTT Broker                                                             |
+| <img src="img/disconnected.png" width="100%"/> | not yet connected or intentionally disconnected                                                |
+|    <img src="img/error.png" width="100%"/>     | connection went wrong: <br/>problems could be invalid user data or loss of internet connection |
 
 ### DICT-API
 - map-based parameters replaced by polygon search
 - makes use of extent and check if station is inside the polygon by intersection
 - additional non-spatial parameters added in text fields
 
-<img src="img/station_search.png" width="49%"/>
-<img src="img/station_handling.png" width="49%"/>
+<img src="img/station_search.png" width="40%"/> <img src="img/station_handling.png" width="40%"/>
 
 ### Visualization
 **Map & Layers:**
@@ -215,17 +214,15 @@ Parameter "station" = Kollmar
   - total measurements
   - latest message time & value
 
-<img src="img/layer_view.png" width="50%"/>
-<img src="img/map_statistics.png" width="30%"/>
+<img src="img/layer_view.png" width="30%"/> <img src="img/map_statistics.png" width="20%"/>
 
 **View Data Tab:**\
-<img src="img/view_data.png" width="80%"/>
-<img src="img/plot_settings.png" width="60%"/>
-<img src="img/all_station_layers.png" width="49%"/> 
-<img src="img/subscribed_station_layers.png" width="49%"/>
+<img src="img/view_data.png" width="50%"/>\
+<img src="img/plot_settings.png" width="40%"/>\
+<img src="img/all_station_layers.png" width="40%"/> <img src="img/subscribed_station_layers.png" width="40%"/>
 
 **Logs Tab:**\
-<img src="img/logs.png" width="60%"/>
+<img src="img/logs.png" width="40%"/>
 
 ## Functionalities
 - Login
@@ -251,6 +248,6 @@ Parameter "station" = Kollmar
 - Logs Tab
 - Quit/ reset
 
-## Best Practices
+## Tips
 - stations layer as central layer for visualization -> never delete!
 - vector layers without coordinate for data storage, stations layer reference and symbol synchronization with layer overview in plugin
