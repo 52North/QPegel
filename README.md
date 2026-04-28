@@ -32,10 +32,10 @@ The plugin was developed based on the [PegelOnline](https://www.pegelonline.wsv.
 ## Core Features
 ### Station Search & Handling
 **Search:** Integrated DICT-API for easy map- and parameter-based station search\
-<img src="docs/img/station_search.png" width="50%"/>
+<img src="docs/img/station_search.png" width="45%"/>
 
 **Handling:** subscribe, unsubscribe or remove selected stations\
-<img src="docs/img/station_handling.png" width="50%"/>
+<img src="docs/img/station_handling.png" width="45%"/>
 
 ### Visualization
 **Plots:** view data (updating automatically with new incoming data)\
@@ -47,11 +47,11 @@ The plugin was developed based on the [PegelOnline](https://www.pegelonline.wsv.
 
 ## Usage
 ### Information
-> - This plugin is only usable with valid user data. If you are interested to use it, contact 52°North.
+> - This plugin is only usable with valid user data. If you are interested to use it, contact us at [52°North](https://52north.org/about-us/contact-us/).
 > 
 > - A minimum QGIS version of 3.99 is required.
 > 
-> - To connect and receive data a stable internet connection is required.
+> - To connect and receive data, a stable internet connection is required.
 > 
 > - If interested, find more detailed information in the [Documentation](https://github.com/Juliarotert/QPegel/blob/master/docs/documentation.md) 
 
@@ -68,9 +68,9 @@ Optional: Add PegelOnline WMS to your project: https://pegelonline.wsv.de/webser
     - add parameters
         - open **Additional Parameters** 
         - add a river (located in your AOI!)
-    - **info:** if there is no parameter input, you will receive all existing stations
+    - **Info:** if there is no parameter input, you will receive all existing stations
 3. Click **Send Request**
-    - **info:** you can send multiple requests with different parameters, the new stations will be appended to the previously retrieved ones
+    - **Info:** you can send multiple requests with different parameters, the new stations will be appended to the previously retrieved ones
 5. Select Available Stations of Interest
 6. **Subscribe**
     - the selected stations are added to the layer panel and will store incoming data (have a look in the attribute table later)
