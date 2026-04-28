@@ -1,4 +1,4 @@
-# QPegel Documentation <img src="img/QPegel_logo.svg" align="right" width="15%"/>
+# QPegel Documentation <img src="img/QPegel_logo.svg" align="right" width="10%"/>
 
 ## Table of Contents
 1. [Intro](#Intro)
