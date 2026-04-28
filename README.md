@@ -21,10 +21,10 @@ The plugin was developed based on the [PegelOnline](https://www.pegelonline.wsv.
 2. In QGIS open from menu: Plugins -> Manage and Install Plugins... -> Install from ZIP
 3. Choose QPegel-master.zip
 4. Click "Install Plugin"
-5. Click **Yes**\
+5. Click **Yes** \
 <img src="docs/img/security_warning.png" width="50%"/>
-6. For the next two screens, check the settings and click **OK**\
-<img src="docs/img/qpip_install.png" width="60%"/>\
+6. For the next two screens, check the settings and click **OK**
+<img src="docs/img/qpip_install.png" width="60%"/>
 <img src="docs/img/dependency_manager.png" width="80%"/>
 7. Check for the QPegel logo in your QGIS toolbars
     - if necessary, add the "Plugins Toolbar" to your QGIS interface
@@ -39,10 +39,10 @@ The plugin was developed based on the [PegelOnline](https://www.pegelonline.wsv.
 
 ### Visualization
 **Plots:** view data (updating automatically with new incoming data)\
-<img src="docs/img/view_data.png" width="70%"/>\
+<img src="docs/img/view_data.png" width="70%"/>
 
 **Map:** view stations and latest measurement in the map canvas\
-<img src="docs/img/layer_view.png" width="40%"/>\
+<img src="docs/img/layer_view.png" width="40%"/>
 <img src="docs/img/map_view.png" width="100%"/>
 
 ## Usage
