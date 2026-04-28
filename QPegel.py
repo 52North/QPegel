@@ -135,6 +135,7 @@ class QPegel(object):
         self.dlg.checkBoxOnlySubscribed.checkStateChanged.connect(self.refresh_view_data_tab)
         self.dlg.mComboBoxUnit.checkedItemsChanged.connect(self.on_checked_unit_change)
         QgsProject.instance().layerRemoved.connect(self.on_layer_removed)
+        QgsProject().instance().aboutToBeCleared.connect(self.quitsessionbtn_clicked)
 
     # base function to avoid multiple toolbar buttons
     def unload(self):
