@@ -58,7 +58,7 @@ The plugin was developed based on the [PegelOnline](https://www.pegelonline.wsv.
 ### Example Workflow
 Optional: Add PegelOnline WMS to your project: https://pegelonline.wsv.de/webservices/gis/wms/aktuell/mnwmhw?request=GetCapabilities&service=WMS&version=1.3.0
 
-1. Login
+1. User Authentification
     - fill in the user data and click **Connect**
 2. Set request parmeters (Tab "Request")
     - define your AOI

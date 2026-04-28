@@ -220,70 +220,90 @@ All incoming data is appended automatically. Data of previous sessions can be ad
 ```
 
 ## Features
-### Login states
+### User Authentification & Connection
+A valid combination of hostname, port, username and password is required to connect.
 
-|                     state                      | meaning                                                                                        |
-|:----------------------------------------------:|------------------------------------------------------------------------------------------------|
-|  <img src="img/connected.png" width="100%"/>   | currently connected to MQTT Broker                                                             |
-| <img src="img/disconnected.png" width="100%"/> | not yet connected or intentionally disconnected                                                |
-|    <img src="img/error.png" width="100%"/>     | connection went wrong: <br/>problems could be invalid user data or loss of internet connection |
+<img src="img/authentification.png" width="50%"/>
+
+|                     state                      | meaning                                                                                   |
+|:----------------------------------------------:|-------------------------------------------------------------------------------------------|
+| <img src="img/disconnected.png" width="100%"/> | not yet connected or intentionally disconnected                                           |
+|  <img src="img/connected.png" width="100%"/>   | currently connected to MQTT Broker                                                        |
+|    <img src="img/error.png" width="100%"/>     | connection error: <br/>problems could be invalid user data or loss of internet connection |
 
 ### DICT-API
-- map-based parameters replaced by polygon search
-- makes use of extent and check if station is inside the polygon by intersection
-- additional non-spatial parameters added in text fields
+The PegelOnline DICT API is integrated in the following way:
+- **Map-based search:** spatial parameters (land, country, ...) are replaced by polygon search
+  - makes use of extent and checks if station coordinate intersects the polygon geometry
+- **Parameter search:** additional non-spatial (or in case of water bodies less continuously spatial) parameters (station, parameter, q) can be added by text fields
+
+Furthermore, all stations received by the requests are added to a list of available stations. 
+By selecting stations in this list, stations can be subscribed, unsubscribed or removed from the list and if available also from the map.\
+As soon as stations were added as map layers, their states and existence is synchronized.
+
+| station color |                                                       meaning                                                        |
+|:-------------:|:--------------------------------------------------------------------------------------------------------------------:|
+|     red       | layer was never subscribed/ added to the map<br/> but was included in the response and is available to be subscribed |
+|     green     |                                                 currently subscribed                                                 |
+|    orange     |                                                currently unsubscribed                                                |
 
 <img src="img/station_search.png" width="40%"/> <img src="img/station_handling.png" width="40%"/>
 
 ### Visualization
-**Map & Layers:**
-- available station locations
-- state of each station (green/orange/gray)
-- polygon
-- statistic
-  - total measurements
-  - latest message time & value
+**Map & Layers:**\
+The layer panel gives an overview over the stations states, and contains the requested stations and, if available, the polygon layer.\
+In the map canvas, all stations received by the request(s) are shown as red map markers. 
+As soon as a station was subscribed and added to the layer-group, the marker appears in blue no matter if the station is currently subscribed or not.
+If a station receives data, an additional label, showing a small statistic about the total measurements and the latest timestamp, unit and value, becomes visible.
 
-<img src="img/layer_view.png" width="30%"/> <img src="img/map_statistics.png" width="20%"/>
+| layer color |                 meaning                  |
+|:-----------:|:----------------------------------------:|
+|    green    |           currently subscribed           |
+|   orange    |          currently unsubscribed          |
+|    gray     | closed layer: session has been quitted   |
 
-**View Data Tab:**
-- choose a station layer 
-  - filtered by layer-type and attributes, excludes irrelevant layers
-- additional filter to only show the currently subscribed stations
-- check available units on/ off
+<img src="img/layer_view.png" width="30%"/> <img src="img/closed_session.png" width="30%"/> <img src="img/map_statistics.png" width="20%"/>
+
+**View Data Tab:**\
+The second visualization method involves plotting the received station-data categorized by units. 
+First, the user selects a station layer from the current QGIS project. 
+The available layers are automatically filtered by geometry and attributes to exclude irrelevant data, such as polygons or raster-layers.
 
 <img src="img/view_data.png" width="50%"/>\
-<img src="img/plot_settings.png" width="40%"/>\
+
+By enabling the "only show currently subscribed layers" checkbox, the list is further refined to exclude unsubscribed or closed stations.\
 <img src="img/all_station_layers.png" width="40%"/> <img src="img/subscribed_station_layers.png" width="40%"/>
 
-**Logs Tab:**
-- view the information/ state/ data storing dicts 
-- updating with new entries/ messages
+Toggling the check-states of available units triggers an update of the plot.
+<img src="img/plot_settings.png" width="40%"/>\
+
+In general, the plots are updated with changing layer/ station, filter-check-box state change, changing unit selection and with every new message/ value.
+If closed layers contain data, they are also plottable. 
+
+**Logs Tab:**\
+In the Logs tab raw station information, data and states are viewable. 
+The text-fields show the original stationlayer and plot mapping dictionaries as they are used for plotting and plugin functionality and also update in real-time.
 
 <img src="img/logs.png" width="40%"/>
 
-**Find Help and Quit Session:**
-- open ReadMe for further information
-- quit session and reset the plugin
+### Functionality Overview
 
-<img src="img/help_quit.png" width="40%"/>
-
-## Functionalities
-
-
-
-| Feature            | Functionalities                                                                                                                                                                                                                       |
+| UI Section         | Functionalities                                                                                                                                                                                                                       |
 |:-------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Login              | <ul><li>user data input</li><li>connect/ disconnect</li></ul>                                                                                                                                                                         |
 | Request Tab        | <ul><li>polygon digitalization</li><li>parameter input</li><li>request</li> <ul><li>url creation</li><li>send/ receive</li><li>result processing</li></ul> <li>station subscription</li><li>layer/ station remove handling</li> </ul> |
 | View data Tab      | <ul><li>layer filtering & selection</li><li>unit selection</li><li>view plots</li></ul>                                                                                                                                               |
 | Logs Tab           | view data storage, information and new entries                                                                                                                                                                                        |
 | Background actions | <ul><li>layer & group creation</li><li>message handling</li><li>data storage & state handling</li><li>plot updating</li></ul>                                                                                                         |
-| Quit/ reset        | find helping instructions or quit session and reset plugin                                                                                                                                                                            |
+| Help/ Quit         | find helping instructions or quit session and reset plugin                                                                                                                                                                            |
 
 
 ## Outlook
+In the future, the plugin has some potential for further development. Some examples ar listed in the following:
 - include past 30 days data
 - compare stations
 - plugin generalization - different data types and providers
 - improve visualization in map and plots
+
+Feedback, comments and suggestions for improvement or contributions are highly welcome. 
+Please contact [52°North](https://52north.org/about-us/contact-us/)! 
