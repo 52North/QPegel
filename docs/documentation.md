@@ -1,7 +1,5 @@
 # QPegel Documentation <img src="img/QPegel_logo.svg" align="right" width="15%"/>
 
-... work in progress ...
-
 ## Table of Contents
 1. [Intro](#Intro)
 2. [Plugin Concept](#Concept)
@@ -44,14 +42,14 @@ the appropriate data storage for visualization in the QGIS map canvas and as plo
 Definition of a Session in QPegel: 
 - Session Start: with successful connection after clicking **Connect**
   - connecting to the MQTT broker enables to receive messages from (later in the plugin usage) subscribed topics
-  - a disconnection will not end the session but will stop the receiving of messages until the plugin re-connects
+  - a disconnection will not end the session but will stop receiving messages (and with that also values) until the plugin re-connects
 - Session End: with Button **Quit Session** or quitting QGIS
-  - the sessions still contain the collected data after quitting but a session cannot be reactivated/ reconnected
+  - the session contains the collected data after quitting but reactivating/ reconnecting is impossible
 - Session Content: 
   - **Layergroup:** created with session start to store all relevant map layers and to distinguish between the active session and previous ones
   - **Stations layer:** containing all requested stations
   - **Layer for each (once) subscribed station:** to store data for labels & table view
-  - **Stationlayer mapping:** dictionary storing station name, ID & active states
+  - **Stationlayer mapping:** dictionary storing station name, ID & active/ subscribed states
   - **Plot mapping:** dictionary storing data (time & value) and relevant information for all stations, sorted by units
 
 ### Requests, Responses & Messages
@@ -165,12 +163,15 @@ by matching unique attributes like the station longname.
 ```
 
 ### Data Storage
-To enable a map- but also a plot-view of the received data, the data is stored as vector-files added as map-layers, as well as in a dictionary which contains the data in a structure to easily add values and transform to a plottable dataframe.
+To enable a map- but also a plot-view of the received data, the data is stored as vector-files added as map-layers, 
+as well as in a dictionary which contains the data in a structure to easily add values and transform to a plottable dataframe.
 Both storages are updated with each new messages. The data is preprocessed by skipping values of duplicate timestamps.
 
 **Map/ Layers**\
-To visualize data in the QGIS map-canvas, it must be included as a layer. To realize this, for each subscribed station a vectorlayer is created and added to the project/ session group.
-These layers contain the data from all received messages.
+To visualize data in the QGIS map-canvas, it must be included as a layer. To realize this, 
+for each subscribed station a vector layer (with EPSG:25832 - ETRS89 / UTM zone 32N) is created 
+and added to the project/ session group.
+These layers contain the data of all received messages and are continuously expanded.
 
 Layer types:
 - **Stations layer** (Point) as central layer for visualization -> never delete!
@@ -183,11 +184,11 @@ Layer types:
 **Attribute table single station layer:**\
 <img src="img/attribute_table.png" width="65%"/>
 
-**Plot/ Dataframe Mapping**\
+**Plots/ Dictionaries**\
 To easily plot the data and update the plots fast with incoming messages, all values and additional information is stored in a dataframe. 
 All incoming data is appended automatically. Data of previous sessions can be added automatically by choosing the layer as plot layer. 
 
-**Stationlayer mapping:**
+**Stationlayer Mapping:**
 ```
 {
     "GLÜCKSTADT": {
@@ -221,7 +222,7 @@ All incoming data is appended automatically. Data of previous sessions can be ad
 
 ## Features
 ### User Authentification & Connection
-A valid combination of hostname, port, username and password is required to connect.
+A valid combination of hostname, port, username and password is required to connect. Contact [52°North](https://52north.org/about-us/contact-us/) for more information.
 
 <img src="img/authentification.png" width="50%"/>
 
@@ -242,25 +243,26 @@ By selecting stations in this list, stations can be subscribed, unsubscribed or 
 As soon as stations were added as map layers, their states and existence is synchronized.
 
 | station color |                                                       meaning                                                        |
-|:-------------:|:--------------------------------------------------------------------------------------------------------------------:|
-|     red       | layer was never subscribed/ added to the map<br/> but was included in the response and is available to be subscribed |
-|     green     |                                                 currently subscribed                                                 |
-|    orange     |                                                currently unsubscribed                                                |
+|:--------------------:|:--------------------------------------------------------------------------------------------------------------------:|
+|         red          | layer was never subscribed/ added to the map<br/> but was included in the response and is available to be subscribed |
+|        green         |                                                 currently subscribed                                                 |
+|        orange        |                                                currently unsubscribed                                                |
 
 <img src="img/station_search.png" width="40%"/> <img src="img/station_handling.png" width="40%"/>
 
 ### Visualization
 **Map & Layers:**\
-The layer panel gives an overview over the stations states, and contains the requested stations and, if available, the polygon layer.\
-In the map canvas, all stations received by the request(s) are shown as red map markers. 
+The single station layers (named by station names) indicate their current state by colors:
+
+| single station <br/>layer color  |                 meaning                  |
+|:--------------------------------:|:----------------------------------------:|
+|              green               |           currently subscribed           |
+|              orange              |          currently unsubscribed          |
+|               gray               | closed layer: session has been quitted   |
+
+In the map canvas, all stations received by the request(s) are collected in the "Stations" layer and first shown as red map markers. 
 As soon as a station was subscribed and added to the layer-group, the marker appears in blue no matter if the station is currently subscribed or not.
 If a station receives data, an additional label, showing a small statistic about the total measurements and the latest timestamp, unit and value, becomes visible.
-
-| layer color |                 meaning                  |
-|:-----------:|:----------------------------------------:|
-|    green    |           currently subscribed           |
-|   orange    |          currently unsubscribed          |
-|    gray     | closed layer: session has been quitted   |
 
 <img src="img/layer_view.png" width="30%"/> <img src="img/closed_session.png" width="30%"/> <img src="img/map_statistics.png" width="20%"/>
 
@@ -288,14 +290,14 @@ The text-fields show the original stationlayer and plot mapping dictionaries as 
 
 ### Functionality Overview
 
-| UI Section         | Functionalities                                                                                                                                                                                                                       |
-|:-------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Login              | <ul><li>user data input</li><li>connect/ disconnect</li></ul>                                                                                                                                                                         |
-| Request Tab        | <ul><li>polygon digitalization</li><li>parameter input</li><li>request</li> <ul><li>url creation</li><li>send/ receive</li><li>result processing</li></ul> <li>station subscription</li><li>layer/ station remove handling</li> </ul> |
-| View data Tab      | <ul><li>layer filtering & selection</li><li>unit selection</li><li>view plots</li></ul>                                                                                                                                               |
-| Logs Tab           | view data storage, information and new entries                                                                                                                                                                                        |
-| Background actions | <ul><li>layer & group creation</li><li>message handling</li><li>data storage & state handling</li><li>plot updating</li></ul>                                                                                                         |
-| Help/ Quit         | find helping instructions or quit session and reset plugin                                                                                                                                                                            |
+| UI Section         | Functionalities                                                                                                                                                                                                                            |
+|:-------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Login              | <ul><li>user data input</li><li>connect/ disconnect</li></ul>                                                                                                                                                                              |
+| Request Tab        | <ul><li>AOI digitization in the map</li><li>parameter input</li><li>request</li> <ul><li>url creation</li><li>send/ receive</li><li>result processing</li></ul> <li>station subscription</li><li>layer/ station remove handling</li> </ul> |
+| View data Tab      | <ul><li>layer filtering & selection</li><li>unit selection</li><li>view plots</li></ul>                                                                                                                                                    |
+| Logs Tab           | view data storage, information and new entries                                                                                                                                                                                             |
+| Background actions | <ul><li>layer & group creation</li><li>message handling</li><li>data storage & state handling</li><li>plot updating</li></ul>                                                                                                              |
+| Help/ Quit         | find helping instructions or quit session and reset plugin                                                                                                                                                                                 |
 
 
 ## Outlook
@@ -304,6 +306,7 @@ In the future, the plugin has some potential for further development. Some examp
 - compare stations
 - plugin generalization - different data types and providers
 - improve visualization in map and plots
+- save temporary layers/ sessions
 
 Feedback, comments and suggestions for improvement or contributions are highly welcome. 
 Please contact [52°North](https://52north.org/about-us/contact-us/)! 

@@ -1,7 +1,8 @@
 
 # QPegel <img src="docs/img/QPegel_logo.svg" align="right" width="15%"/>
 
-[![QGIS Plugin](https://img.shields.io/badge/QGIS-Plugin-green)](https://plugins.qgis.org/plugins/quick_map_services/) [![License](https://img.shields.io/badge/license-GPL%20v3%2B-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
+[![QGIS Plugin](https://img.shields.io/badge/QGIS-Plugin-green)](https://plugins.qgis.org/plugins/quick_map_services/) [![Documentation](https://img.shields.io/badge/Documentation-Online-blue?logo=read-the-docs)](https://github.com/Juliarotert/QPegel/blob/master/docs/documentation.md)
+ [![License](https://img.shields.io/badge/license-GPL%20v3%2B-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
 A QGIS plugin for interactive hydrological sensor station discovery via **DICT API** and push-based, real-time data visualization using the **MQTT** protocol.
 
