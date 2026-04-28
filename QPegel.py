@@ -119,8 +119,8 @@ class QPegel(object):
         self.dlg.pushButtonQuitSession.clicked.connect(self.quitsessionbtn_clicked)
 
         # initial steps & signal-slot connections
-        self.dlg.pushButtonAddPolygon.setIcon(QIcon(os.path.join(self.plugin_dir, "img/polygon.svg")))
-        self.dlg.pushButtonRemovePolygon.setIcon(QIcon(os.path.join(self.plugin_dir, "img/remove_polygon.svg")))
+        self.dlg.pushButtonAddPolygon.setIcon(QIcon(os.path.join(self.plugin_dir, "img_ui/polygon.svg")))
+        self.dlg.pushButtonRemovePolygon.setIcon(QIcon(os.path.join(self.plugin_dir, "img_ui/remove_polygon.svg")))
         self.dlg.tabWidget.setCurrentWidget(self.dlg.tabWidget.findChild(QWidget, "tab1Request"))
         self.change_status("disconnected", "gray")
         self.dlg.mMapLayerComboBox.setFilters(QgsMapLayerProxyModel.PointLayer)
@@ -411,7 +411,7 @@ class QPegel(object):
                     self.stations_layer.dataProvider().addFeatures([feature])
                     # create checkable items and add them to QListWidget
                     item = QListWidgetItem(station["shortname"])
-                    item.setIcon(QIcon(os.path.join(self.plugin_dir, "img/circle_red.svg")))
+                    item.setIcon(QIcon(os.path.join(self.plugin_dir, "img_ui/circle_red.svg")))
                     # item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
                     # item.setCheckState(Qt.CheckState.Checked)
                     self.dlg.listWidgetLayers.addItem(item)
@@ -490,7 +490,7 @@ class QPegel(object):
                 if not already_subscribed:
                     subscribed_list.append(layer.name())
                     self.reader.subscribe(self.station_index[layer.name()]["mqtttopic"])
-                    item.setIcon(QIcon(os.path.join(self.plugin_dir, "img/circle_green.svg")))
+                    item.setIcon(QIcon(os.path.join(self.plugin_dir, "img_ui/circle_green.svg")))
                     layer.loadNamedStyle(os.path.join(self.plugin_dir, "layer-styles/style_active.qml"))
                     self.stationlayer_mapping[layer.name()] = {"id": layer.id(), "active": True}
                     self.dlg.textEditStationlayerMapping.setPlainText(str(self.stationlayer_mapping))
@@ -578,7 +578,7 @@ class QPegel(object):
                         self.reader.unsubscribe(self.station_index[name]["mqtttopic"])
                         # styles
                         layer = QgsProject.instance().mapLayersByName(item.text())[0]
-                        item.setIcon(QIcon(os.path.join(self.plugin_dir, "img/circle_orange.svg")))
+                        item.setIcon(QIcon(os.path.join(self.plugin_dir, "img_ui/circle_orange.svg")))
                         self.stationlayer_mapping[name] = {"id": id, "active": False}
                         layer.loadNamedStyle(os.path.join(self.plugin_dir, "layer-styles/style_inactive.qml"))
                         self.dlg.textEditStationlayerMapping.setPlainText(str(self.stationlayer_mapping))

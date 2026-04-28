@@ -1,12 +1,12 @@
 [general]
 name=QPegel
 description=View Hydrological Sensor Data in Real-Time
-about=A QGIS plugin for interactive hydrological sensor station discovery via DICT-API and real-time, push-based data visualization using the MQTT protocol.
+about=A QGIS plugin for interactive hydrological sensor station discovery via DICT API and push-based, real-time data visualization using the MQTT protocol.
 
 version=1.0.0
 qgisMinimumVersion=3.99
 qgisMaximumVersion=4.99
-author=Julia Rotert - 52°North GmbH
+author=Julia Rotert (52°North GmbH)
 email=j.rotert@52north.org
 repository=https://github.com/Juliarotert/QPegel
 homepage=https://github.com/Juliarotert/QPegel
