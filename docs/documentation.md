@@ -163,13 +163,13 @@ by matching unique attributes like the station longname.
 ```
 
 ### Data Storage
-To enable a map- but also a plot-view of the received data, the data is stored as vector-files added as map-layers, 
+To enable a map- but also a plot-visualization of the received values, the data is stored as vector-files added as map-layers 
 as well as in a dictionary which contains the data in a structure to easily add values and transform to a plottable dataframe.
 Both storages are updated with each new messages. The data is preprocessed by skipping values of duplicate timestamps.
 
 **Map/ Layers**\
 To visualize data in the QGIS map-canvas, it must be included as a layer. To realize this, 
-for each subscribed station a vector layer (with EPSG:25832 - ETRS89 / UTM zone 32N) is created 
+for each subscribed station a vector layer (EPSG:25832 - ETRS89 / UTM zone 32N) is created 
 and added to the project/ session group.
 These layers contain the data of all received messages and are continuously expanded.
 
@@ -185,8 +185,11 @@ Layer types:
 <img src="img/attribute_table.png" width="65%"/>
 
 **Plots/ Dictionaries**\
-To easily plot the data and update the plots fast with incoming messages, all values and additional information is stored in a dataframe. 
-All incoming data is appended automatically. Data of previous sessions can be added automatically by choosing the layer as plot layer. 
+To easily plot the data and update the plots with incoming messages, all values and additional information 
+is stored in a dictionary which is converted into a dataframe before plotting.
+All incoming data is appended automatically. 
+To ensure chronological consistency, the dataframe is sorted by timestamp after appending new data.\
+Data of previous sessions can also be added by just choosing a closed layer as plot layer. 
 
 **Stationlayer Mapping:**
 ```
@@ -254,11 +257,11 @@ As soon as stations were added as map layers, their states and existence is sync
 **Map & Layers:**\
 The single station layers (named by station names) indicate their current state by colors:
 
-| single station <br/>layer color  |                 meaning                  |
-|:--------------------------------:|:----------------------------------------:|
-|              green               |           currently subscribed           |
-|              orange              |          currently unsubscribed          |
-|               gray               | closed layer: session has been quitted   |
+| single station <br/>layer color  |                 meaning                 |
+|:--------------------------------:|:---------------------------------------:|
+|              green               |          currently subscribed           |
+|              orange              |         currently unsubscribed          |
+|               gray               | closed layer: session has been quitted  |
 
 In the map canvas, all stations received by the request(s) are collected in the "Stations" layer and first shown as red map markers. 
 As soon as a station was subscribed and added to the layer-group, the marker appears in blue no matter if the station is currently subscribed or not.
