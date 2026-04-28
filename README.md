@@ -7,7 +7,7 @@ A QGIS plugin for interactive hydrological sensor station discovery via **DICT-A
 
 The plugin was developed based on the [PegelOnline](https://www.pegelonline.wsv.de/gast/start) and [EDIS](https://www.itzbund.de/DE/itloesungen/egovernment/echtzeitdateninfrastruktur/edis.html) projects.
 
-![Screencast_new_data.gif](docs/Screencast_new_data.gif)
+<img src="docs/Screencast_new_data.gif" width="100%"/>
 
 ## Installation
 ### Dependencies
@@ -22,10 +22,10 @@ The plugin was developed based on the [PegelOnline](https://www.pegelonline.wsv.
 3. Choose QPegel-master.zip
 4. Click "Install Plugin"
 5. Click **Yes** \
-<img src="docs/img/security_warning.png" width="50%"/>
+<img src="docs/img/security_warning.png" width="40%"/>
 6. For the next two screens, check the settings and click **OK**
-<img src="docs/img/qpip_install.png" width="60%"/>
-<img src="docs/img/dependency_manager.png" width="80%"/>
+<img src="docs/img/qpip_install.png" width="50%"/>
+<img src="docs/img/dependency_manager.png" width="70%"/>
 7. Check for the QPegel logo in your QGIS toolbars
     - if necessary, add the "Plugins Toolbar" to your QGIS interface
 
@@ -39,11 +39,11 @@ The plugin was developed based on the [PegelOnline](https://www.pegelonline.wsv.
 
 ### Visualization
 **Plots:** view data (updating automatically with new incoming data)\
-<img src="docs/img/view_data.png" width="70%"/>
+<img src="docs/img/view_data.png" width="60%"/>
 
 **Map:** view stations and latest measurement in the map canvas\
-<img src="docs/img/layer_view.png" width="40%"/>
-<img src="docs/img/map_view.png" width="100%"/>
+<img src="docs/img/layer_view.png" width="33%"/>
+<img src="docs/img/map_view.png" width="65.4%"/>
 
 ## Usage
 ### Information
