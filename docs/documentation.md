@@ -162,12 +162,12 @@ by matching unique attributes like the station longname.
 }
 ```
 
-### Data Storage
+### Data Storage & Visualization types
 To enable a map- but also a plot-visualization of the received values, the data is stored as vector-files added as map-layers 
 as well as in a dictionary which contains the data in a structure to easily add values and transform to a plottable dataframe.
 Both storages are updated with each new messages. The data is preprocessed by skipping values of duplicate timestamps.
 
-**Map/ Layers**\
+#### Map/ Layers
 To visualize data in the QGIS map-canvas, it must be included as a layer. To realize this, 
 for each subscribed station a vector layer (EPSG:25832 - ETRS89 / UTM zone 32N) is created 
 and added to the project/ session group.
@@ -178,13 +178,13 @@ Layer types:
 - **Single station layers** (Point) without coordinate for data storage, stations layer reference and symbol synchronization with layer overview in plugin
 - **Polygon layer** showing the AOI
 
-**Attribute table stations layer:**\
+**Attribute table of "Stations" layer:**\
 <img src="img/attribute_table_stations.png" width="100%"/>
 
-**Attribute table single station layer:**\
+**Attribute table of single station layer:**\
 <img src="img/attribute_table.png" width="65%"/>
 
-**Plots/ Dictionaries**\
+#### Plots/ Dictionaries
 To easily plot the data and update the plots with incoming messages, all values and additional information 
 is stored in a dictionary which is converted into a dataframe before plotting.
 All incoming data is appended automatically. 
@@ -224,10 +224,21 @@ Data of previous sessions can also be added by just choosing a closed layer as p
 ```
 
 ## Features
+### Functionality Overview
+
+| UI Section         | Functionalities                                                                                                                                                                                                                                    |
+|:-------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Login              | <ul><li>user data input</li><li>connect/ disconnect</li></ul>                                                                                                                                                                                      |
+| Request Tab        | <ul><li>AOI digitization in the map</li><li>parameter input</li><li>request</li> <ul><li>request url building</li><li>send/ receive</li><li>result processing</li></ul> <li>station subscription</li><li>layer/ station remove handling</li> </ul> |
+| View data Tab      | <ul><li>layer filtering & selection</li><li>unit selection</li><li>view plots</li></ul>                                                                                                                                                            |
+| Logs Tab           | view data storage, information and new entries                                                                                                                                                                                                     |
+| Background actions | <ul><li>layer & group creation</li><li>message handling</li><li>data storage & state handling</li><li>plot updating</li></ul>                                                                                                                      |
+| Help/ Quit         | find helping instructions or quit session and reset plugin                                                                                                                                                                                         |
+
 ### User Authentification & Connection
 A valid combination of hostname, port, username and password is required to connect. Contact [52°North](https://52north.org/about-us/contact-us/) for more information.
 
-<img src="img/authentification.png" width="50%"/>
+<img src="img/authentification.png" width="30%"/>
 
 |                     state                      | meaning                                                                                   |
 |:----------------------------------------------:|-------------------------------------------------------------------------------------------|
@@ -290,18 +301,6 @@ In the Logs tab raw station information, data and states are viewable.
 The text-fields show the original stationlayer and plot mapping dictionaries as they are used for plotting and plugin functionality and also update in real-time.
 
 <img src="img/logs.png" width="40%"/>
-
-### Functionality Overview
-
-| UI Section         | Functionalities                                                                                                                                                                                                                            |
-|:-------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Login              | <ul><li>user data input</li><li>connect/ disconnect</li></ul>                                                                                                                                                                              |
-| Request Tab        | <ul><li>AOI digitization in the map</li><li>parameter input</li><li>request</li> <ul><li>url creation</li><li>send/ receive</li><li>result processing</li></ul> <li>station subscription</li><li>layer/ station remove handling</li> </ul> |
-| View data Tab      | <ul><li>layer filtering & selection</li><li>unit selection</li><li>view plots</li></ul>                                                                                                                                                    |
-| Logs Tab           | view data storage, information and new entries                                                                                                                                                                                             |
-| Background actions | <ul><li>layer & group creation</li><li>message handling</li><li>data storage & state handling</li><li>plot updating</li></ul>                                                                                                              |
-| Help/ Quit         | find helping instructions or quit session and reset plugin                                                                                                                                                                                 |
-
 
 ## Outlook
 In the future, the plugin has some potential for further development. Some examples ar listed in the following:
