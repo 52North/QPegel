@@ -265,7 +265,8 @@ As soon as stations were added as map layers, their states and existence is sync
 <img src="img/station_search.png" width="40%"/> <img src="img/station_handling.png" width="40%"/>
 
 ### 3.4 Visualization
-**Map & Layers:**\
+The data is visualized in three different ways which are described in the following.
+#### 3.4.1 Map & Layers
 The single station layers (named by station names) indicate their current state by colors:
 
 | single station <br/>layer color  |                 meaning                 |
@@ -280,7 +281,7 @@ If a station receives data, an additional label, showing a small statistic about
 
 <img src="img/layer_view.png" width="30%"/> <img src="img/closed_session.png" width="30%"/> <img src="img/map_statistics.png" width="20%"/>
 
-**View Data Tab:**\
+#### 3.4.2 View Data Tab
 The second visualization method involves plotting the received station data categorized by units. 
 First, the user selects a station layer from the current QGIS project. 
 The available layers are automatically filtered by geometry and attributes to exclude irrelevant data, such as polygons or raster-layers.
@@ -296,7 +297,7 @@ Toggling the check-states of available units triggers an update of the plot.\
 In general, the plots are updated with changing layer/ station, filter-check-box state change, changing unit selection and with every new message/ value.
 If closed layers contain data, they are also plottable. 
 
-**Logs Tab:**\
+#### 3.4.3 Logs Tab
 In the Logs tab raw station information, data and states are viewable. 
 The text-fields show the original stationlayer and plot mapping dictionaries as they are used for plotting and plugin functionality and also update in real-time.
 
