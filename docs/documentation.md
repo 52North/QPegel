@@ -2,15 +2,14 @@
 
 ## Table of Contents
 1. [Intro](#Intro)
-2. [Plugin Concept](#Concept)
+2. [Concept](#Concept)
 3. [Features](#Features)
-4. [Functionalities](#Functionalities)
 5. [Outlook](#Outlook)
 
-## Intro
+## 1. Intro
 QPegel: A QGIS plugin for interactive hydrological sensor station discovery via **DICT API** and push-based, real-time data visualization using the **MQTT** protocol.
 
-### About QPegel
+### 1.1 About QPegel
 QPegel was developed based on the real-time access mechanisms offered by PegelOnline infrastructure and the related EDIS project. 
 While current solutions often rely on historical pull-based data, QPegel takes hydrological monitoring to the next level. 
 By leveraging the MQTT protocol, the plugin enables a seamless transition from discovery to live subscription. 
@@ -21,24 +20,24 @@ In addition, QPegel relies on the [PegelOnline DICT API](https://dict-api.pegelo
 This API provides the necessary metadata and MQTT topics required to subscribe to live data streams. 
 QPegel serves as a pioneering approach to integrating these tools into a spatial environment.
 
-### PegelOnline
+### 1.2 PegelOnline
 [PegelOnline](https://www.pegelonline.wsv.de/gast/start) is a german platform providing real-time raw, hydrological sensor data of federal waterways.
 While it offers data of the last 30 days as free web services, such as WMS, WFS, API's or Visualizations, 
 it also provides downloadable data from January 1, 2000 onwards.
 
-### EDIS
+### 1.3 EDIS
 [EDIS](https://www.itzbund.de/DE/itloesungen/egovernment/echtzeitdateninfrastruktur/edis.html) (Echzeitdateninfrastruktur - Real-Time Data Infrastructure) upgrades the PegelOnline project.
 Compared to the existing **pull**-based services, EDIS enables **push**-based data delivery by applying the MQTT-Protocol 
 and is an innovative approach not only interesting for hydrological data provision.
 
-## Concept
+## 2. Concept
 QPegel should make it easily possible to search for stations, subscribe to them 
 and watch visualizations updating in real-time with every new message.
 The plugin handles the connection to the MQTT-broker, sends, receives and processes requests and their results.
 It enables simple subscribing or unsubscribing to station topics, handles incoming messages as well as 
 the appropriate data storage for visualization in the QGIS map canvas and as plots.
 
-### Sessions
+### 2.1 Sessions
 Definition of a session in QPegel: 
 - Session start: with successful connection after clicking **Connect** for the first time
   - connecting to the MQTT broker enables to receive messages from (later in the plugin usage) subscribed topics
@@ -52,7 +51,7 @@ Definition of a session in QPegel:
   - **Stationlayer mapping:** dictionary storing station name, ID & active/ subscribed states
   - **Plot mapping:** dictionary storing data (time & value) and relevant information for all stations, sorted by units
 
-### Requests, Responses & Messages
+### 2.2 Requests, Responses & Messages
 DICT API requests retrieve station metadata, including MQTT topics for subscription. 
 Once a subscription is active, incoming messages are assigned to the correct stations 
 by matching unique attributes like the station longname.
@@ -162,13 +161,13 @@ by matching unique attributes like the station longname.
 }
 ```
 
-### Data Storage & Visualization Types
+### 2.3 Data Storage & Visualization Types
 To enable a map- but also a plot-visualization of the received values, the data is stored in vector-files added as map-layers 
 as well as in a dictionary. This dictionary contains the data in a structure which makes it easy to add values 
 and transform it into a plottable dataframe.\
 Both storage-types are updated with each new messages. The data is preprocessed by skipping values of duplicate timestamps.
 
-#### Map/ Layers
+#### 2.3.1 Map/ Layers
 To visualize data in the QGIS map-canvas, it must be included as a map layer. To realize this, 
 for each subscribed station a vector layer (EPSG:25832 - ETRS89 / UTM zone 32N) is created 
 and added to the project/ session group.
@@ -185,7 +184,7 @@ Layer types:
 **Attribute table of single station layer:**\
 <img src="img/attribute_table.png" width="65%"/>
 
-#### Plots/ Dictionaries
+#### 2.3.2 Plots/ Dictionaries
 To easily plot the data and update the plots with incoming messages, all values and additional information 
 is stored in a dictionary which is converted into a dataframe before plotting.
 All incoming data is appended automatically. 
@@ -224,8 +223,8 @@ Data of previous sessions can also be added by just choosing a closed layer as p
 }
 ```
 
-## Features
-### Functionality Overview
+## 3. Features
+### 3.1 Functionality Overview
 
 | UI Section         | Functionalities                                                                                                                                                                                                                                    |
 |:-------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -236,7 +235,7 @@ Data of previous sessions can also be added by just choosing a closed layer as p
 | Background Actions | <ul><li>layer & group creation</li><li>message handling</li><li>data storage & state handling</li><li>plot updating</li></ul>                                                                                                                      |
 | Help/ Quit         | find helping instructions or quit session and reset plugin                                                                                                                                                                                         |
 
-### User Authentification & Connection
+### 3.2 User Authentification & Connection
 A valid combination of hostname, port, username and password is required to connect. Contact [52°North](https://52north.org/about-us/contact-us/) for more information.
 
 <img src="img/authentification.png" width="30%"/>
@@ -247,7 +246,7 @@ A valid combination of hostname, port, username and password is required to conn
 |  <img src="img/connected.png" width="100%"/>   | currently connected to MQTT Broker                                                        |
 |    <img src="img/error.png" width="100%"/>     | connection error: <br/>problems could be invalid user data or loss of internet connection |
 
-### DICT API Integration
+### 3.3 DICT API Integration
 The PegelOnline DICT API is integrated in the following way:
 - **Map-based search:** spatial parameters (land, country, ...) are replaced by polygon search
   - makes use of extent-parameter and checks if received station coordinates intersect the polygon geometry
@@ -265,7 +264,7 @@ As soon as stations were added as map layers, their states and existence is sync
 
 <img src="img/station_search.png" width="40%"/> <img src="img/station_handling.png" width="40%"/>
 
-### Visualization
+### 3.4 Visualization
 **Map & Layers:**\
 The single station layers (named by station names) indicate their current state by colors:
 
@@ -303,7 +302,7 @@ The text-fields show the original stationlayer and plot mapping dictionaries as 
 
 <img src="img/logs.png" width="40%"/>
 
-## Outlook
+## 4. Outlook
 In the future, the plugin has some potential for further development. Some examples ar listed in the following:
 - include past 30 days data
 - compare stations
