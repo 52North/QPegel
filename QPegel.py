@@ -774,8 +774,10 @@ class QPegel(object):
         ax = self.figure.add_subplot(1, 1, 1)
         ax.set_xlabel("Time")
         ax.set_ylabel("Value")
-        if "[CLOSED]" in self.plot_layer.name():
+        if "[CLOSED]" in self.plot_layer.name() or self.stationlayer_mapping[self.plot_layer.name()] is False:
             ax.set_title("No data available.")
+        elif self.plot_layer.name() in self.stationlayer_mapping.keys():
+            ax.set_title("No data available, station not subscribed")
         else:
             ax.set_title("Waiting for data...")
         self.canvas.draw()
