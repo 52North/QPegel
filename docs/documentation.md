@@ -34,26 +34,26 @@ and is an innovative approach not only interesting for hydrological data provisi
 ## Concept
 QPegel should make it easily possible to search for stations, subscribe to them 
 and watch visualizations updating in real-time with every new message.
-The Plugin handles the connection to the MQTT-broker, sends, receives and processes requests and their results.
+The plugin handles the connection to the MQTT-broker, sends, receives and processes requests and their results.
 It enables simple subscribing or unsubscribing to station topics, handles incoming messages as well as 
 the appropriate data storage for visualization in the QGIS map canvas and as plots.
 
 ### Sessions
-Definition of a Session in QPegel: 
-- Session Start: with successful connection after clicking **Connect**
+Definition of a session in QPegel: 
+- Session start: with successful connection after clicking **Connect** for the first time
   - connecting to the MQTT broker enables to receive messages from (later in the plugin usage) subscribed topics
   - a disconnection will not end the session but will stop receiving messages (and with that also values) until the plugin re-connects
-- Session End: with Button **Quit Session** or quitting QGIS
+- Session end: with button **Quit Session** or quitting QGIS
   - the session contains the collected data after quitting but reactivating/ reconnecting is impossible
-- Session Content: 
+- Session content: 
   - **Layergroup:** created with session start to store all relevant map layers and to distinguish between the active session and previous ones
   - **Stations layer:** containing all requested stations
-  - **Layer for each (once) subscribed station:** to store data for labels & table view
+  - **Single station layers:** for each (once) subscribed station to store data for labels & table view
   - **Stationlayer mapping:** dictionary storing station name, ID & active/ subscribed states
   - **Plot mapping:** dictionary storing data (time & value) and relevant information for all stations, sorted by units
 
 ### Requests, Responses & Messages
-DICT API Requests retrieve station metadata, including MQTT topics for subscription. 
+DICT API requests retrieve station metadata, including MQTT topics for subscription. 
 Once a subscription is active, incoming messages are assigned to the correct stations 
 by matching unique attributes like the station longname.
 
@@ -162,20 +162,21 @@ by matching unique attributes like the station longname.
 }
 ```
 
-### Data Storage & Visualization types
-To enable a map- but also a plot-visualization of the received values, the data is stored as vector-files added as map-layers 
-as well as in a dictionary which contains the data in a structure to easily add values and transform to a plottable dataframe.
-Both storages are updated with each new messages. The data is preprocessed by skipping values of duplicate timestamps.
+### Data Storage & Visualization Types
+To enable a map- but also a plot-visualization of the received values, the data is stored in vector-files added as map-layers 
+as well as in a dictionary. This dictionary contains the data in a structure which makes it easy to add values 
+and transform it into a plottable dataframe.\
+Both storage-types are updated with each new messages. The data is preprocessed by skipping values of duplicate timestamps.
 
 #### Map/ Layers
-To visualize data in the QGIS map-canvas, it must be included as a layer. To realize this, 
+To visualize data in the QGIS map-canvas, it must be included as a map layer. To realize this, 
 for each subscribed station a vector layer (EPSG:25832 - ETRS89 / UTM zone 32N) is created 
 and added to the project/ session group.
 These layers contain the data of all received messages and are continuously expanded.
 
 Layer types:
 - **Stations layer** (Point) as central layer for visualization -> never delete!
-- **Single station layers** (Point) without coordinate for data storage, stations layer reference and symbol synchronization with layer overview in plugin
+- **Single station layers** (Point) without coordinate for data storage and stations layer label reference
 - **Polygon layer** showing the AOI
 
 **Attribute table of "Stations" layer:**\
@@ -228,11 +229,11 @@ Data of previous sessions can also be added by just choosing a closed layer as p
 
 | UI Section         | Functionalities                                                                                                                                                                                                                                    |
 |:-------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Login              | <ul><li>user data input</li><li>connect/ disconnect</li></ul>                                                                                                                                                                                      |
+| Login              | <ul><li>user data input & validation</li><li>connect/ disconnect</li></ul>                                                                                                                                                                         |
 | Request Tab        | <ul><li>AOI digitization in the map</li><li>parameter input</li><li>request</li> <ul><li>request url building</li><li>send/ receive</li><li>result processing</li></ul> <li>station subscription</li><li>layer/ station remove handling</li> </ul> |
-| View data Tab      | <ul><li>layer filtering & selection</li><li>unit selection</li><li>view plots</li></ul>                                                                                                                                                            |
+| View Data Tab      | <ul><li>layer filtering & selection</li><li>unit selection</li><li>view plots</li></ul>                                                                                                                                                            |
 | Logs Tab           | view data storage, information and new entries                                                                                                                                                                                                     |
-| Background actions | <ul><li>layer & group creation</li><li>message handling</li><li>data storage & state handling</li><li>plot updating</li></ul>                                                                                                                      |
+| Background Actions | <ul><li>layer & group creation</li><li>message handling</li><li>data storage & state handling</li><li>plot updating</li></ul>                                                                                                                      |
 | Help/ Quit         | find helping instructions or quit session and reset plugin                                                                                                                                                                                         |
 
 ### User Authentification & Connection
@@ -246,15 +247,15 @@ A valid combination of hostname, port, username and password is required to conn
 |  <img src="img/connected.png" width="100%"/>   | currently connected to MQTT Broker                                                        |
 |    <img src="img/error.png" width="100%"/>     | connection error: <br/>problems could be invalid user data or loss of internet connection |
 
-### DICT-API
+### DICT API Integration
 The PegelOnline DICT API is integrated in the following way:
 - **Map-based search:** spatial parameters (land, country, ...) are replaced by polygon search
-  - makes use of extent and checks if station coordinate intersects the polygon geometry
+  - makes use of extent-parameter and checks if received station coordinates intersect the polygon geometry
 - **Parameter search:** additional non-spatial (or in case of water bodies less continuously spatial) parameters (station, parameter, q) can be added by text fields
 
 Furthermore, all stations received by the requests are added to a list of available stations. 
-By selecting stations in this list, stations can be subscribed, unsubscribed or removed from the list and if available also from the map.\
-As soon as stations were added as map layers, their states and existence is synchronized.
+By selecting stations in this list, stations can be subscribed, unsubscribed or removed from the list and if available also from the map.
+As soon as stations were added as map layers, their states and existence is synchronized with the list.
 
 | station color |                                                       meaning                                                        |
 |:--------------------:|:--------------------------------------------------------------------------------------------------------------------:|
@@ -281,7 +282,7 @@ If a station receives data, an additional label, showing a small statistic about
 <img src="img/layer_view.png" width="30%"/> <img src="img/closed_session.png" width="30%"/> <img src="img/map_statistics.png" width="20%"/>
 
 **View Data Tab:**\
-The second visualization method involves plotting the received station-data categorized by units. 
+The second visualization method involves plotting the received station data categorized by units. 
 First, the user selects a station layer from the current QGIS project. 
 The available layers are automatically filtered by geometry and attributes to exclude irrelevant data, such as polygons or raster-layers.
 
@@ -290,8 +291,8 @@ The available layers are automatically filtered by geometry and attributes to ex
 By enabling the "only show currently subscribed layers" checkbox, the list is further refined to exclude unsubscribed or closed stations.\
 <img src="img/all_station_layers.png" width="40%"/> <img src="img/subscribed_station_layers.png" width="40%"/>
 
-Toggling the check-states of available units triggers an update of the plot.
-<img src="img/plot_settings.png" width="40%"/>\
+Toggling the check-states of available units triggers an update of the plot.\
+<img src="img/plot_settings.png" width="40%"/>
 
 In general, the plots are updated with changing layer/ station, filter-check-box state change, changing unit selection and with every new message/ value.
 If closed layers contain data, they are also plottable. 
@@ -309,6 +310,7 @@ In the future, the plugin has some potential for further development. Some examp
 - plugin generalization - different data types and providers
 - improve visualization in map and plots
 - save temporary layers/ sessions
+- ...
 
 Feedback, comments and suggestions for improvement or contributions are highly welcome. 
 Please contact [52°North](https://52north.org/about-us/contact-us/)! 
