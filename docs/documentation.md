@@ -1,10 +1,10 @@
 # QPegel Documentation <img src="img/QPegel_logo.svg" align="right" width="10%"/>
 
 ## Table of Contents
-1. [Intro](#1.-intro)
-2. [Concept](#2.-concept)
-3. [Features](#3.-features)
-4. [Outlook](#4.-outlook)
+1. [Intro](#1%20intro)
+2. [Concept](#2-concept)
+3. [Features](#3-features)
+4. [Outlook](#4-outlook)
 
 ## 1. Intro
 QPegel: A QGIS plugin for interactive hydrological sensor station discovery via **DICT API** and push-based, real-time data visualization using the **MQTT** protocol.
