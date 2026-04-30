@@ -1,7 +1,7 @@
 # QPegel Documentation <img src="img/QPegel_logo.svg" align="right" width="10%"/>
 
 ## Table of Contents
-1. [Intro](#1%20intro)
+1. [Intro](#1-intro)
 2. [Concept](#2-concept)
 3. [Features](#3-features)
 4. [Outlook](#4-outlook)
