@@ -148,7 +148,7 @@ class QPegel(object):
 
     # opens help/ documentation docs
     def open_help(self):
-        webbrowser.open("https://github.com/Juliarotert/QPegel/blob/master/README.md")
+        webbrowser.open("https://github.com/52North/QPegel/blob/master/README.md")
 
     # fast style changes of connection info
     def change_status(self, status : str, color:str):

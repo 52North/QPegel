@@ -1,7 +1,7 @@
 
 # QPegel <img src="docs/img/QPegel_logo.svg" align="right" width="15%"/>
 
-[![QGIS Plugin](https://img.shields.io/badge/QGIS-Plugin-green)](https://plugins.qgis.org/plugins/quick_map_services/) [![Documentation](https://img.shields.io/badge/Documentation-Online-blue?logo=read-the-docs)](https://github.com/Juliarotert/QPegel/blob/master/docs/documentation.md)
+[![QGIS Plugin](https://img.shields.io/badge/QGIS-Plugin-green)](https://plugins.qgis.org/plugins/quick_map_services/) [![Documentation](https://img.shields.io/badge/Documentation-Online-blue?logo=read-the-docs)](https://github.com/52North/QPegel/blob/master/docs/documentation.md)
  [![License](https://img.shields.io/badge/license-GPL%20v3%2B-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
 A QGIS plugin for interactive hydrological sensor station discovery via **DICT API** and push-based, real-time data visualization using the **MQTT** protocol.
@@ -54,7 +54,7 @@ The plugin was developed based on the [PegelOnline](https://www.pegelonline.wsv.
 > 
 > - To connect and receive data, a stable internet connection is required.
 > 
-> - If interested, find more detailed information in the [Documentation](https://github.com/Juliarotert/QPegel/blob/master/docs/documentation.md) 
+> - If interested, find more detailed information in the [Documentation](https://github.com/52North/QPegel/blob/master/docs/documentation.md) 
 
 ### Example Workflow
 Optional: Add PegelOnline WMS to your project: https://pegelonline.wsv.de/webservices/gis/wms/aktuell/mnwmhw?request=GetCapabilities&service=WMS&version=1.3.0
