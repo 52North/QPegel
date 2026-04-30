@@ -256,11 +256,11 @@ Furthermore, all stations received by the requests are added to a list of availa
 By selecting stations in this list, stations can be subscribed, unsubscribed or removed from the list and if available also from the map.
 As soon as stations were added as map layers, their states and existence is synchronized with the list.
 
-| station color |                                                       meaning                                                        |
-|:--------------------:|:--------------------------------------------------------------------------------------------------------------------:|
-|         red          | layer was never subscribed/ added to the map<br/> but was included in the response and is available to be subscribed |
-|        green         |                                                 currently subscribed                                                 |
-|        orange        |                                                currently unsubscribed                                                |
+| station color  |                                                       meaning                                                        |
+|:--------------:|:--------------------------------------------------------------------------------------------------------------------:|
+|      red       | layer was never subscribed/ added to the map<br/> but was included in the response and is available to be subscribed |
+|     green      |                                                 currently subscribed                                                 |
+|     orange     |                                                currently unsubscribed                                                |
 
 <img src="img/station_search.png" width="40%"/> <img src="img/station_handling.png" width="40%"/>
 

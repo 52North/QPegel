@@ -19,7 +19,7 @@ The plugin was developed based on the [PegelOnline](https://www.pegelonline.wsv.
 
 ### Installation via zip
 1. Download QPegel from Github
-2. In QGIS open from menu: Plugins -> Manage and Install Plugins... -> Install from ZIP
+2. In QGIS open from menu: Plugins → Manage and Install Plugins... → Install from ZIP
 3. Choose QPegel-master.zip
 4. Click "Install Plugin"
 5. Click **Yes** \
@@ -72,14 +72,14 @@ Optional: Add PegelOnline WMS to your project: https://pegelonline.wsv.de/webser
     - **Info:** if there is no parameter input, you will receive all existing stations
 3. Click **Send Request**
     - **Info:** you can send multiple requests with different parameters, the new stations will be appended to the previously retrieved ones
-5. Select Available Stations of Interest
-6. **Subscribe**
+4. Select Available Stations of Interest
+5. **Subscribe**
     - the selected stations are added to the layer panel and will store incoming data (have a look in the attribute table later)
     - as soon as the first data arrives you can also see a label showing a small station statistic
-7. Switch to the Tab "View Data"
+6. Switch to the Tab "View Data"
     - choose a station
     - choose visible units (if >1 available)
-8. **Wait and see new data arrive...**
+7. **Wait and see new data arrive...**
 
 
 
