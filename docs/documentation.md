@@ -313,4 +313,4 @@ In the future, the plugin has some potential for further development. Some examp
 - ...
 
 Feedback, comments and suggestions for improvement or contributions are highly welcome. 
-Please contact [52°North](https://52north.org/about-us/contact-us/)! 
+Please contact <email=edis@52north.org>! 
