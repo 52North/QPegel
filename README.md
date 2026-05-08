@@ -4,7 +4,7 @@
 [![QGIS Plugin](https://img.shields.io/badge/QGIS-Plugin-green)](https://plugins.qgis.org/plugins/quick_map_services/) [![Documentation](https://img.shields.io/badge/Documentation-Online-blue?logo=read-the-docs)](https://github.com/52North/QPegel/blob/master/docs/documentation.md)
  [![License](https://img.shields.io/badge/license-GPL%20v3%2B-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
-A QGIS plugin for interactive hydrological sensor station discovery via **DICT API** and push-based, real-time data visualization using the **MQTT** protocol.
+A QGIS plugin for interactive hydrological sensor station discovery via **Dict-API** and push-based, real-time data visualization using the **MQTT** protocol.
 
 The plugin was developed based on the [PegelOnline](https://www.pegelonline.wsv.de/gast/start) and [EDIS](https://www.itzbund.de/DE/itloesungen/egovernment/echtzeitdateninfrastruktur/edis.html) projects.
 
@@ -22,7 +22,7 @@ The plugin was developed based on the [PegelOnline](https://www.pegelonline.wsv.
 2. In QGIS open from menu: Plugins → Manage and Install Plugins... → Install from ZIP
 3. Choose QPegel-master.zip
 4. Click "Install Plugin"
-5. Click **Yes** \
+5. Click **Yes**
 <img src="docs/img/security_warning.png" width="40%"/>
 6. For the next two screens, check the settings and click **OK**
 <img src="docs/img/qpip_install.png" width="50%"/>
@@ -32,23 +32,24 @@ The plugin was developed based on the [PegelOnline](https://www.pegelonline.wsv.
 
 ## Core Features
 ### Station Search & Handling
-**Search:** Integrated DICT-API for easy map- and parameter-based station search\
+**Search:** Integrated [PegelOnline Dict-API](https://dict-api.pegelonline.wsv.de/api/#/Suche/search) (see the documentation [here](https://www.pegelonline.wsv.de/webservice/dictAPI;jsessionid=307911D6C745EDEB96ADE65DCD71568D)) for easy map- and parameter-based station search\
 <img src="docs/img/station_search.png" width="45%"/>
 
 **Handling:** subscribe, unsubscribe or remove selected stations\
 <img src="docs/img/station_handling.png" width="45%"/>
 
 ### Visualization
-**Plots:** view data (updating automatically with new incoming data)\
-<img src="docs/img/view_data.png" width="60%"/>
-
 **Map:** view stations and latest measurement in the map canvas\
 <img src="docs/img/layer_view.png" width="33%"/>
 <img src="docs/img/map_view.png" width="65.4%"/>
 
+**Plots:** view data (updating automatically with new incoming data)\
+<img src="docs/img/view_data.png" width="60%"/>
+
+
 ## Usage
 ### Information
-> - This plugin is only usable with valid user data. If you are interested to use it, contact us at [52°North](https://52north.org/about-us/contact-us/).
+> - This plugin is currently only usable with valid user data. If you are interested to use it, contact <edis@itzbund.de>.
 > 
 > - A minimum QGIS version of 3.99 is required.
 > 

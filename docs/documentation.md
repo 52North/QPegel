@@ -7,7 +7,7 @@
 4. [Outlook](#4-outlook)
 
 ## 1. Intro
-QPegel: A QGIS plugin for interactive hydrological sensor station discovery via **DICT API** and push-based, real-time data visualization using the **MQTT** protocol.
+QPegel: A QGIS plugin for interactive hydrological sensor station discovery via **Dict-API** and push-based, real-time data visualization using the **MQTT** protocol.
 
 ### 1.1 About QPegel
 QPegel was developed based on the real-time access mechanisms offered by PegelOnline infrastructure and the related EDIS project. 
@@ -16,7 +16,7 @@ By leveraging the MQTT protocol, the plugin enables a seamless transition from d
 Since hydrological sensor data is inherently spatial, visualizing these streams directly within QGIS provides the necessary geographic context
 to understand regional trends and dependencies within and between water bodies.
 
-In addition, QPegel relies on the [PegelOnline DICT API](https://dict-api.pegelonline.wsv.de/api/#/Suche/search) for station discovery. 
+In addition, QPegel relies on the [PegelOnline Dict-API](https://dict-api.pegelonline.wsv.de/api/#/Suche/search) (see the documentation [here](https://www.pegelonline.wsv.de/webservice/dictAPI;jsessionid=307911D6C745EDEB96ADE65DCD71568D)) for station discovery. 
 This API provides the necessary metadata and MQTT topics required to subscribe to live data streams. 
 QPegel serves as a pioneering approach to integrating these tools into a spatial environment.
 
@@ -52,11 +52,11 @@ Definition of a session in QPegel:
   - **Plot mapping:** dictionary storing data (time & value) and relevant information for all stations, sorted by units
 
 ### 2.2 Requests, Responses & Messages
-DICT API requests retrieve station metadata, including MQTT topics for subscription. 
+Dict-API requests retrieve station metadata, including MQTT topics for subscription. 
 Once a subscription is active, incoming messages are assigned to the correct stations 
 by matching unique attributes like the station longname.
 
-**DICT API Response:**
+**Dict-API Response:**
 - Request: https://dict-api.pegelonline.wsv.de/search?station=Kollmar
 ```json
 {
@@ -236,7 +236,7 @@ Data of previous sessions can also be added by just choosing a closed layer as p
 | Help/ Quit         | find helping instructions or quit session and reset plugin                                                                                                                                                                                         |
 
 ### 3.2 User Authentification & Connection
-A valid combination of hostname, port, username and password is required to connect. Contact [52°North](https://52north.org/about-us/contact-us/) for more information.
+A valid combination of hostname, port, username and password is required to connect. Contact <edis@itzbund.de> for more information.
 
 <img src="img/authentification.png" width="30%"/>
 
@@ -246,8 +246,8 @@ A valid combination of hostname, port, username and password is required to conn
 |  <img src="img/connected.png" width="100%"/>   | currently connected to MQTT Broker                                                        |
 |    <img src="img/error.png" width="100%"/>     | connection error: <br/>problems could be invalid user data or loss of internet connection |
 
-### 3.3 DICT API Integration
-The PegelOnline DICT API is integrated in the following way:
+### 3.3 Dict-API Integration
+The PegelOnline Dict-API is integrated in the following way:
 - **Map-based search:** spatial parameters (land, country, ...) are replaced by polygon search
   - makes use of extent-parameter and checks if received station coordinates intersect the polygon geometry
 - **Parameter search:** additional non-spatial (or in case of water bodies less continuously spatial) parameters (station, parameter, q) can be added by text fields

@@ -1,7 +1,7 @@
 [general]
 name=QPegel
 description=View Hydrological Sensor Data in Real-Time
-about=A QGIS plugin for interactive hydrological sensor station discovery via DICT API and push-based, real-time data visualization using the MQTT protocol.
+about=A QGIS plugin for interactive hydrological sensor station discovery via Dict-API and push-based, real-time data visualization using the MQTT protocol.
 
 version=1.0.0
 qgisMinimumVersion=3.99
@@ -13,7 +13,7 @@ homepage=https://github.com/52North/QPegel
 tracker=https://github.com/52North/QPegel/issues
 icon=Logo.png
 category=Vector
-tags=web, api, mqtt, IoT, sensors, sensor-data, plots, real-time, hydrology
+tags=web, api, dict-api, mqtt, IoT, sensors, sensor-data, plots, real-time, hydrology
 
 supportsQt6=True
 experimental=True
