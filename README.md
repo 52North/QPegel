@@ -10,25 +10,30 @@ The plugin was developed based on the [PegelOnline](https://www.pegelonline.wsv.
 
 <img src="docs/Screencast_new_data.gif" width="100%"/>
 
-## Installation
-### Dependencies
-- qpip
-- paho-mqtt
-- pandas
-- matplotlib
 
-### Installation via zip
-1. Download QPegel from Github
+## Usage Information
+
+> - This plugin is currently only usable with valid user data. If you are interested to use it, please contact <edis@itzbund.de>.
+> 
+> - A minimum QGIS version of 3.99 is required.
+> 
+> - To connect and receive data, a stable internet connection is required.
+> 
+> - If interested, find more detailed information in the [Documentation](https://github.com/52North/QPegel/blob/master/docs/documentation.md)
+
+
+## Installation via zip
+
+1. [Download the latest QPegel.zip from Github](https://github.com/52North/QPegel/releases/)
 2. In QGIS open from menu: Plugins → Manage and Install Plugins... → Install from ZIP
-3. Choose QPegel-master.zip
+3. Choose downloaded zip
 4. Click "Install Plugin"
 5. Click **Yes**
 <img src="docs/img/security_warning.png" width="40%"/>
 6. For the next two screens, check the settings and click **OK**
 <img src="docs/img/qpip_install.png" width="50%"/>
 <img src="docs/img/dependency_manager.png" width="70%"/>
-7. Check for the QPegel logo in your QGIS toolbars
-    - if necessary, add the "Plugins Toolbar" to your QGIS interface
+7. Check for the QPegel logo in your QGIS toolbars. If necessary, add the "Plugins Toolbar" to your QGIS interface
 
 ## Core Features
 ### Station Search & Handling
@@ -47,18 +52,8 @@ The plugin was developed based on the [PegelOnline](https://www.pegelonline.wsv.
 <img src="docs/img/view_data.png" width="60%"/>
 
 
-## Usage
-### Information
-> - This plugin is currently only usable with valid user data. If you are interested to use it, contact <edis@itzbund.de>.
-> 
-> - A minimum QGIS version of 3.99 is required.
-> 
-> - To connect and receive data, a stable internet connection is required.
-> 
-> - If interested, find more detailed information in the [Documentation](https://github.com/52North/QPegel/blob/master/docs/documentation.md) 
-
 ### Example Workflow
-Optional: Add PegelOnline WMS to your project: https://pegelonline.wsv.de/webservices/gis/wms/aktuell/mnwmhw?request=GetCapabilities&service=WMS&version=1.3.0
+>  Optional: Add PegelOnline WMS to your project: https://pegelonline.wsv.de/webservices/gis/wms/aktuell/mnwmhw?request=GetCapabilities&service=WMS&version=1.3.0 to see all available stations
 
 1. User Authentification
     - fill in the user data and click **Connect**
