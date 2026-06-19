@@ -15,7 +15,7 @@ The plugin was developed based on the [PegelOnline](https://www.pegelonline.wsv.
 
 > - This plugin is currently only usable with valid user data. If you are interested to use it, please contact <edis@itzbund.de>.
 > 
-> - A minimum QGIS version of 4.0 is required.
+> - A minimum QGIS version of 3.0 is required.
 > 
 > - To connect and receive data, a stable internet connection is required.
 > 

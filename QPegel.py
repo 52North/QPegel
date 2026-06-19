@@ -26,9 +26,6 @@ from qgis.PyQt.QtCore import *
 
 from qgis.core import *
 
-from PyQt6.QtCore import *
-from PyQt6.QtWidgets import QMessageBox
-
 import os
 import webbrowser
 import requests
@@ -131,8 +128,13 @@ class QPegel(object):
         self.dlg.lineEditQ.editingFinished.connect(self.update_request)
         self.dlg.tabWidget.currentChanged.connect(self.refresh_view_data_tab)
         self.dlg.mMapLayerComboBox.layerChanged.connect(self.prepare_plot)
-        #self.dlg.checkBoxHistorical.checkStateChanged.connect(self.on_checkbox_historical_change)
-        self.dlg.checkBoxOnlySubscribed.checkStateChanged.connect(self.refresh_view_data_tab)
+        if Qgis.QGIS_VERSION_INT >= 40000:
+            # self.dlg.checkBoxHistorical.checkStateChanged.connect(self.on_checkbox_historical_change)
+            self.dlg.checkBoxOnlySubscribed.checkStateChanged.connect(self.refresh_view_data_tab)
+        else:
+            # self.dlg.checkBoxHistorical.stateChanged.connect(self.on_checkbox_historical_change)
+            self.dlg.checkBoxOnlySubscribed.stateChanged.connect(self.refresh_view_data_tab)
+
         self.dlg.mComboBoxUnit.checkedItemsChanged.connect(self.on_checked_unit_change)
         QgsProject.instance().layerRemoved.connect(self.on_layer_removed)
         QgsProject().instance().aboutToBeCleared.connect(self.quitsessionbtn_clicked)
