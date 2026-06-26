@@ -367,7 +367,7 @@ class QPegel(object):
             self.group.insertChildNode(0, QgsLayerTreeLayer(self.stations_layer))
             self.stations_layer.loadNamedStyle(os.path.join(self.plugin_dir, "layer-styles/style_stations.qml"))
             # add attributes to layer
-            self.stations_layer.dataProvider().addAttributes([QgsField("uuid", QVariant.String),
+            self.stations_layer.dataProvider().addAttributes([QgsField("uuid2", QVariant.String),
                                                              QgsField("number", QVariant.String),
                                                              QgsField("shortname", QVariant.String),
                                                              QgsField("km", QVariant.Int),
@@ -435,6 +435,8 @@ class QPegel(object):
         # zoom to station layer
         self.iface.setActiveLayer(self.stations_layer)
         self.iface.actionZoomToLayer().trigger()
+        # start the "identify features" button after finishing to view the stations attributes on click
+        self.iface.actionIdentify().trigger()
 
     # select all stations
     def selectallbtn_clicked(self):
@@ -529,7 +531,8 @@ class QPegel(object):
                 break
         if message_layer is None:
             print(f"could not handle message for station {name} - could not find associated layer")
-            
+            return
+
         # plot_mapping initialization
         entry = None
         key = str(message_layer.name())
