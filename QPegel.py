@@ -23,6 +23,7 @@ QGIS plugin
 from qgis.PyQt.QtGui import *
 from qgis.PyQt.QtWidgets import *
 from qgis.PyQt.QtCore import *
+from qgis.PyQt.QtCore import QT_VERSION_STR
 
 from qgis.core import *
 
@@ -128,7 +129,7 @@ class QPegel(object):
         self.dlg.lineEditQ.editingFinished.connect(self.update_request)
         self.dlg.tabWidget.currentChanged.connect(self.refresh_view_data_tab)
         self.dlg.mMapLayerComboBox.layerChanged.connect(self.prepare_plot)
-        if Qgis.QGIS_VERSION_INT >= 40000:
+        if QT_VERSION_STR.startswith('6'):
             # self.dlg.checkBoxHistorical.checkStateChanged.connect(self.on_checkbox_historical_change)
             self.dlg.checkBoxOnlySubscribed.checkStateChanged.connect(self.refresh_view_data_tab)
         else:
@@ -517,7 +518,9 @@ class QPegel(object):
             if msg["shortname"] == name:
                 message_layer = QgsProject.instance().mapLayersByName(name)[0]
                 break
-
+        if message_layer is None:
+            print(f"could not handle message for station {name} - could not find associated layer")
+            
         # plot_mapping initialization
         entry = None
         key = str(message_layer.name())
@@ -776,7 +779,7 @@ class QPegel(object):
         ax = self.figure.add_subplot(1, 1, 1)
         ax.set_xlabel("Time")
         ax.set_ylabel("Value")
-        if "[CLOSED]" in self.plot_layer.name() or self.stationlayer_mapping[self.plot_layer.name()] is False:
+        if "[CLOSED]" in self.plot_layer.name() or self.plot_layer.name() not in self.stationlayer_mapping:
             ax.set_title("No data available.")
         elif self.plot_layer.name() in self.stationlayer_mapping.keys():
             ax.set_title("No data available, station not subscribed")

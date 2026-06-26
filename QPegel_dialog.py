@@ -24,9 +24,10 @@ import os
 
 from qgis.PyQt.QtWidgets import QDialog, QDockWidget
 from qgis.PyQt import uic
+from qgis.PyQt.QtCore import QT_VERSION_STR
 
 # This loads your .ui file so that PyQt can populate your plugin
-if Qgis.QGIS_VERSION_INT >= 40000:
+if QT_VERSION_STR.startswith('6'):
     FORM_CLASS, _ = uic.loadUiType(os.path.join(
         os.path.dirname(__file__), 'QPegel_dialog_base_dockWidget.ui'))
 else:
