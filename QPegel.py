@@ -434,8 +434,6 @@ class QPegel(object):
         # zoom to station layer
         self.iface.setActiveLayer(self.stations_layer)
         self.iface.actionZoomToLayer().trigger()
-        # start the "identify features" button after finishing to view the stations attributes on click
-        self.iface.actionIdentify().trigger()
 
     # select all stations
     def selectallbtn_clicked(self):
