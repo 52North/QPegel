@@ -66,22 +66,16 @@ class EDISConnector(QThread):
 
     def on_connect(self, client, userdata, flags, reason_code, properties):
         print(f"Connected with result code {reason_code}")
-        #msg = f"Connected with result code {reason_code}"
         self.status_msg.emit(str(reason_code))
 
     def subscribe(self, topic: str):
-        print(f"subscribed to {topic}")
         self.mqtt_client.subscribe(topic)
 
     def unsubscribe(self, topic: str):
-        print(f"UNsubscribed to {topic}")
         self.mqtt_client.unsubscribe(topic)
 
     def on_message(self, client, userdata, msg):
         self.new_message.emit(json.loads(msg.payload))
-        ##DEBUG ONLY
-        message = msg.topic + " " + str(msg.payload)
-        print(f"topic: {msg.topic}")
 
     def on_disconnect(self, client, _, flags, reason_code, properties):
         print(f"Disconnected with result code {reason_code}")
