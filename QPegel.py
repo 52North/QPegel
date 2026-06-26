@@ -514,6 +514,7 @@ class QPegel(object):
         self.msg_counter += 1
         self.dlg.labelMessageCount.setText(f"Total messages received: {self.msg_counter}")
         # get layer fitting to message
+        message_layer = None
         for name in self.stationlayer_mapping.keys():
             if msg["shortname"] == name:
                 message_layer = QgsProject.instance().mapLayersByName(name)[0]
