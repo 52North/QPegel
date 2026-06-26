@@ -521,6 +521,7 @@ class QPegel(object):
                 break
         if message_layer is None:
             print(f"could not handle message for station {name} - could not find associated layer")
+            return
             
         # plot_mapping initialization
         entry = None
