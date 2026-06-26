@@ -94,13 +94,6 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="2">
-          <widget class="QgsPasswordLineEdit" name="mLineEditPassword">
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="0" alignment="Qt::AlignmentFlag::AlignHCenter">
           <widget class="QLabel" name="labelPort">
            <property name="layoutDirection">
@@ -108,13 +101,6 @@
            </property>
            <property name="text">
             <string>Port</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="2">
-          <widget class="QLineEdit" name="lineEditUsername">
-           <property name="text">
-            <string/>
            </property>
           </widget>
          </item>
@@ -138,6 +124,12 @@
             <string>Hostname</string>
            </property>
           </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QLineEdit" name="lineEditUsesrname"/>
+         </item>
+         <item row="3" column="2">
+          <widget class="QgsPasswordLineEdit" name="mLineEditPassword"/>
          </item>
         </layout>
        </item>
