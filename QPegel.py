@@ -177,6 +177,7 @@ class QPegel(object):
             port = int(self.dlg.lineEditPort.text())
             username = self.dlg.lineEditUsername.text()
             password = self.dlg.mLineEditPassword.text()
+
             # create reader
             self.reader = EDISConnector(parent=self.dlg, hostname=hostname, port=port, username=username,
                                         password=password)
@@ -185,9 +186,9 @@ class QPegel(object):
             self.reader.new_message.connect(self.handle_message)
             self.reader.error_msg.connect(print)
             self.reader.start()
-        except:
+        except Exception as e:
             self.change_status("error", "red")
-            QMessageBox.warning(None, "Error", f"Connection Error: \ncheck your user data")
+            QMessageBox.warning(None, "Error", f"Connection Error: \n{e}, check your user data")
 
     # handle incoming connection status messages
     def handle_status(self, msg : str):
@@ -366,7 +367,7 @@ class QPegel(object):
             self.group.insertChildNode(0, QgsLayerTreeLayer(self.stations_layer))
             self.stations_layer.loadNamedStyle(os.path.join(self.plugin_dir, "layer-styles/style_stations.qml"))
             # add attributes to layer
-            self.stations_layer.dataProvider().addAttributes([QgsField("uuid2", QVariant.String),
+            self.stations_layer.dataProvider().addAttributes([QgsField("uuid", QVariant.String),
                                                              QgsField("number", QVariant.String),
                                                              QgsField("shortname", QVariant.String),
                                                              QgsField("km", QVariant.Int),
@@ -487,6 +488,15 @@ class QPegel(object):
                     already_subscribed = False
                     self.plot_mapping[item.text()] = {}
 
+                    # set uuid in layer metadata
+                    for feature in self.stations_layer.getFeatures():
+                        if feature["shortname"] == item.text():
+                            metadata = layer.metadata()
+                            metadata.setIdentifier(str(feature["uuid"]))
+                            layer.setMetadata(metadata)
+                            layer.triggerRepaint()
+                            break
+
                 # subscribe topic and set styles & state
                 if not already_subscribed:
                     subscribed_list.append(layer.name())
@@ -512,9 +522,10 @@ class QPegel(object):
         self.msg_counter += 1
         self.dlg.labelMessageCount.setText(f"Total messages received: {self.msg_counter}")
         # get layer fitting to message
-        for name in self.stationlayer_mapping.keys():
-            if msg["shortname"] == name:
-                message_layer = QgsProject.instance().mapLayersByName(name)[0]
+        message_layer = None
+        for layer in QgsProject.instance().mapLayers().values():
+            if layer.metadata().identifier() == msg["uuid"]:
+                message_layer = layer
                 break
         if message_layer is None:
             print(f"could not handle message for station {name} - could not find associated layer")
