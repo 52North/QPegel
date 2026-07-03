@@ -80,7 +80,7 @@ class QPegel(object):
         self.station_index: dict[str, Any] = {}
         self.msg_counter: int = 0
         # layers
-        # self.stationlayer_mapping = {name: {id: str, active: bool}}
+        # self.stationlayer_mapping = {name: {layer_id: str, active: bool}}
         self.stationlayer_mapping: dict[str, dict[str, str | bool]] = {}
         self.root = QgsProject.instance().layerTreeRoot()
         # plots
@@ -129,6 +129,8 @@ class QPegel(object):
         self.dlg.lineEditQ.editingFinished.connect(self.update_request)
         self.dlg.tabWidget.currentChanged.connect(self.refresh_view_data_tab)
         self.dlg.mMapLayerComboBox.layerChanged.connect(self.prepare_plot)
+        self.dlg.mGroupBoxParameter.collapsedStateChanged.connect(self.parameter_info)
+
         if QT_VERSION_STR.startswith('6'):
             # self.dlg.checkBoxHistorical.checkStateChanged.connect(self.on_checkbox_historical_change)
             self.dlg.checkBoxOnlySubscribed.checkStateChanged.connect(self.refresh_view_data_tab)
@@ -318,6 +320,19 @@ class QPegel(object):
         # update request with finished polygon
         self.update_request()
 
+    # informs the user if parameters are active while the groupbox is collapsed
+    def parameter_info(self):
+        base_title = "Additional Parameters"
+        if self.dlg.mGroupBoxParameter.isCollapsed():
+            print("collapsed!")
+            textfields = [self.dlg.lineEditStation.text(), self.dlg.lineEditGewaesser.text(), self.dlg.lineEditParameter.text(), self.dlg.lineEditQ.text()]
+            filled_count = sum(1 for field in textfields if field.strip())
+            if not all(not field.strip() for field in textfields):
+                self.dlg.mGroupBoxParameter.setTitle(f"{base_title} [{filled_count} active]")
+            else: self.dlg.mGroupBoxParameter.setTitle(base_title)
+        else: self.dlg.mGroupBoxParameter.setTitle(base_title)
+
+
     # gets the latest request parameters
     def update_request(self):
         if len(self.bbox) == 0:
@@ -367,7 +382,7 @@ class QPegel(object):
             self.group.insertChildNode(0, QgsLayerTreeLayer(self.stations_layer))
             self.stations_layer.loadNamedStyle(os.path.join(self.plugin_dir, "layer-styles/style_stations.qml"))
             # add attributes to layer
-            self.stations_layer.dataProvider().addAttributes([QgsField("uuid2", QVariant.String),
+            self.stations_layer.dataProvider().addAttributes([QgsField("uuid", QVariant.String),
                                                              QgsField("number", QVariant.String),
                                                              QgsField("shortname", QVariant.String),
                                                              QgsField("km", QVariant.Int),
@@ -465,7 +480,7 @@ class QPegel(object):
                 already_subscribed = False
                 # check if station exists
                 for name, info in self.stationlayer_mapping.items():
-                    id, active = info["id"], info["active"]
+                    uuid, layer_id, active = info["uuid"], info["layer_id"], info["active"]
                     # set exists true if existing in stationlayer_mapping
                     if item.text() == name:
                         layer = QgsProject.instance().mapLayersByName(item.text())[0]
@@ -494,7 +509,8 @@ class QPegel(object):
                     for feature in self.stations_layer.getFeatures():
                         if feature["shortname"] == item.text():
                             metadata = layer.metadata()
-                            metadata.setIdentifier(str(feature["uuid"]))
+                            uuid = str(feature["uuid"])
+                            metadata.setIdentifier(uuid)
                             layer.setMetadata(metadata)
                             layer.triggerRepaint()
                             break
@@ -505,7 +521,7 @@ class QPegel(object):
                     self.reader.subscribe(self.station_index[layer.name()]["mqtttopic"])
                     item.setIcon(QIcon(os.path.join(self.plugin_dir, "img_ui/circle_green.svg")))
                     layer.loadNamedStyle(os.path.join(self.plugin_dir, "layer-styles/style_active.qml"))
-                    self.stationlayer_mapping[layer.name()] = {"id": layer.id(), "active": True}
+                    self.stationlayer_mapping[layer.name()] = {"uuid": uuid, "layer_id": layer.id(), "active": True}
                     self.dlg.textEditStationlayerMapping.setPlainText(str(self.stationlayer_mapping))
 
         # inform about subscribed stations
@@ -530,7 +546,7 @@ class QPegel(object):
                 message_layer = layer
                 break
         if message_layer is None:
-            print(f"could not handle message for station {name} - could not find associated layer")
+            print(f"could not handle message {msg} - could not find associated layer")
             return
 
         # plot_mapping initialization
@@ -588,7 +604,7 @@ class QPegel(object):
             item = self.dlg.listWidgetLayers.item(i)
             if item.isSelected():
                 for name, info in self.stationlayer_mapping.items():
-                    id, active = info["id"], info["active"]
+                    uuid, layer_id, active = info["uuid"], info["layer_id"], info["active"]
                     # unsubscribe if currently subscribed
                     if item.text() == name and active:
                         unsubscribed_list.append(name)
@@ -596,7 +612,7 @@ class QPegel(object):
                         # styles
                         layer = QgsProject.instance().mapLayersByName(item.text())[0]
                         item.setIcon(QIcon(os.path.join(self.plugin_dir, "img_ui/circle_orange.svg")))
-                        self.stationlayer_mapping[name] = {"id": id, "active": False}
+                        self.stationlayer_mapping[name] = {"uuid": uuid, "layer_id": layer_id, "active": False}
                         layer.loadNamedStyle(os.path.join(self.plugin_dir, "layer-styles/style_inactive.qml"))
                         self.dlg.textEditStationlayerMapping.setPlainText(str(self.stationlayer_mapping))
                         break
@@ -644,6 +660,7 @@ class QPegel(object):
                 # collect all stations available as layers & in stationlayer_mapping
                 else:
                     for name, info in self.stationlayer_mapping.items():
+                        # ToDo: replace by uuid metadata
                         layer = QgsProject.instance().mapLayersByName(item.text())[0]
                         if item.text() == name:
                             delete_station_list.append(name)
@@ -682,10 +699,11 @@ class QPegel(object):
             self.handle_remove_polygon()
         # deleting steps for stations
         for name, info in self.stationlayer_mapping.items():
-            id, active = info["id"], info["active"]
-            if removed_layer_id == id:
+            uuid, layer_id, active = info["uuid"], info["layer_id"], info["active"]
+            if removed_layer_id == layer_id:
                 # collect stations to delete from mappings
                 if name in self.stationlayer_mapping.keys():
+                    # ToDo replace by id/ uuid
                     remove_list.append(name)
                 # remove from listWidgetLayers
                 if self.dlg.listWidgetLayers.count() > 0:
@@ -701,6 +719,7 @@ class QPegel(object):
                             self.stations_layer.deleteFeature(feature.id())
 
         # remove from stationlayer_mapping & plot_mapping
+        # ToDo replace by id/ uuid
         for name in remove_list:
             self.stationlayer_mapping.pop(name)
             if name in self.plot_mapping.keys():
@@ -938,10 +957,11 @@ class QPegel(object):
                 self.stations_layer.loadNamedStyle(os.path.join(self.plugin_dir, "layer-styles/style_stations_closed.qml"))
                 self.stations_layer = None
                 for name, info in self.stationlayer_mapping.items():
+                    uuid, layer_id, active = info["uuid"], info["layer_id"], info["active"]
                     layer = QgsProject.instance().mapLayersByName(name)[0]
                     if info["active"] is True:
                         self.reader.unsubscribe(self.station_index[layer.name()]["mqtttopic"])
-                        self.stationlayer_mapping[layer.name()] = {"id": layer.id(), "active": False}
+                        self.stationlayer_mapping[layer.name()] = {"uuid": uuid, "layer_id": layer_id, "active": False}
                     layer.loadNamedStyle(os.path.join(self.plugin_dir, "layer-styles/style_closed.qml"))
                     layer.setName("[CLOSED] " + layer.name())
 
