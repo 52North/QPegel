@@ -80,13 +80,11 @@ class QPegel(object):
         self.station_index: dict[str, Any] = {}
         self.msg_counter: int = 0
         # layers
-        # self.stationlayer_mapping = {name: {layer_id: str, active: bool}}
-        self.stationlayer_mapping: dict[str, dict[str, str | bool]] = {}
+        # self.stationlayer_mapping = {uuid: {layer_name: str, layer_id: str, active: bool}}
+        self.stationlayer_mapping: dict[str, dict[str, Any]] = {}
         self.root = QgsProject.instance().layerTreeRoot()
         # plots
         self.plot_layer: QgsVectorLayer = None
-        # self.plot_mapping = {layername: {unitlongname: {data: [{timestamp: time, value: float}, ...], unit: str, type: str, unitactive: bool}}}
-        self.plot_mapping: dict[str, dict[str, dict[str, list[dict[str, str | float]] | str | bool]]] = {}
         self.figure: Figure = Figure()
         self.canvas: FigureCanvas = FigureCanvas(self.figure)
 
@@ -213,7 +211,8 @@ class QPegel(object):
             self.change_status("connected", "green")
             # layer styles
             if len(self.stationlayer_mapping) > 0:
-                for name, info in self.stationlayer_mapping.items():
+                for uuid, info in self.stationlayer_mapping.items():
+                    name, layer_id, active = info["name"], info["layer_id"], info["active"]
                     if info["active"] == True:
                         self.reader.subscribe(self.station_index[name]["mqtttopic"])
                 self.change_session_station_styles("active")
@@ -256,8 +255,8 @@ class QPegel(object):
     # change layer styles
     def change_session_station_styles(self, state: str):
         if self.group is not None:
-            for name, info in self.stationlayer_mapping.items():
-                layer = QgsProject.instance().mapLayersByName(name)[0]
+            for uuid, info in self.stationlayer_mapping.items():
+                layer = QgsProject.instance().mapLayer(info["layer_id"])
                 if info["active"] is True:
                     if state == "active":
                         layer.loadNamedStyle(os.path.join(self.plugin_dir, "layer-styles/style_active.qml"))
@@ -324,7 +323,6 @@ class QPegel(object):
     def parameter_info(self):
         base_title = "Additional Parameters"
         if self.dlg.mGroupBoxParameter.isCollapsed():
-            print("collapsed!")
             textfields = [self.dlg.lineEditStation.text(), self.dlg.lineEditGewaesser.text(), self.dlg.lineEditParameter.text(), self.dlg.lineEditQ.text()]
             filled_count = sum(1 for field in textfields if field.strip())
             if not all(not field.strip() for field in textfields):
@@ -402,13 +400,13 @@ class QPegel(object):
         transform_parameters = QgsCoordinateTransform(source_crs, target_crs, QgsProject.instance())
         # add data from response
         features = self.stations_layer.getFeatures()
-        feature_shortnames = []
+        feature_uuids = []
         for feature in features:
-            feature_shortnames.append(feature["shortname"])
+            feature_uuids.append(feature["uuid"])
         # check if station is new
         for station in self.response_json["stations"]:
-            if station["shortname"] not in feature_shortnames:
-                self.station_index[station["shortname"]] = station
+            if station["uuid"] not in feature_uuids:
+                self.station_index[station["uuid"]] = station
                 point = QgsPointXY(station["longitude"], station["latitude"])
                 point_reprojected = transform_parameters.transform(point)
                 point_geometry = QgsGeometry.fromPointXY(point_reprojected)
@@ -431,6 +429,7 @@ class QPegel(object):
                     # create checkable items and add them to QListWidget
                     item = QListWidgetItem(station["shortname"])
                     item.setIcon(QIcon(os.path.join(self.plugin_dir, "img_ui/circle_red.svg")))
+                    item.setData(Qt.ItemDataRole.UserRole, station["uuid"])
                     # item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
                     # item.setCheckState(Qt.CheckState.Checked)
                     self.dlg.listWidgetLayers.addItem(item)
@@ -450,8 +449,6 @@ class QPegel(object):
         # zoom to station layer
         self.iface.setActiveLayer(self.stations_layer)
         self.iface.actionZoomToLayer().trigger()
-        # start the "identify features" button after finishing to view the stations attributes on click
-        self.iface.actionIdentify().trigger()
 
     # select all stations
     def selectallbtn_clicked(self):
@@ -478,15 +475,14 @@ class QPegel(object):
             if item.isSelected():
                 exists = False
                 already_subscribed = False
+                uuid = item.data(Qt.ItemDataRole.UserRole)
                 # check if station exists
-                for name, info in self.stationlayer_mapping.items():
-                    uuid, layer_id, active = info["uuid"], info["layer_id"], info["active"]
-                    # set exists true if existing in stationlayer_mapping
-                    if item.text() == name:
-                        layer = QgsProject.instance().mapLayersByName(item.text())[0]
-                        already_subscribed = active
-                        exists = True
-                        break
+                # set exists true if existing in stationlayer_mapping
+                if uuid in self.stationlayer_mapping:
+                    info = self.stationlayer_mapping[uuid]
+                    layer = QgsProject.instance().mapLayer(info["layer_id"])
+                    already_subscribed = info["active"]
+                    exists = True
 
                 if not exists:
                     # create new layer attributes to group if checked
@@ -503,11 +499,15 @@ class QPegel(object):
                     self.stations_layer.triggerRepaint()
                     # add layer to dict {"shortname": QgsVectorLayer}
                     already_subscribed = False
-                    self.plot_mapping[item.text()] = {}
+                    # initialize station in dict
+                    self.stationlayer_mapping[uuid] = {'name': layer.name(),
+                                                      'layer_id': layer.id(),
+                                                      'active': already_subscribed,
+                                                      'data': {}}
 
                     # set uuid in layer metadata
                     for feature in self.stations_layer.getFeatures():
-                        if feature["shortname"] == item.text():
+                        if feature["uuid"] == uuid:
                             metadata = layer.metadata()
                             uuid = str(feature["uuid"])
                             metadata.setIdentifier(uuid)
@@ -517,11 +517,12 @@ class QPegel(object):
 
                 # subscribe topic and set styles & state
                 if not already_subscribed:
-                    subscribed_list.append(layer.name())
-                    self.reader.subscribe(self.station_index[layer.name()]["mqtttopic"])
+                    subscribed_list.append(layer.id())
+                    self.reader.subscribe(self.station_index[uuid]["mqtttopic"])
                     item.setIcon(QIcon(os.path.join(self.plugin_dir, "img_ui/circle_green.svg")))
                     layer.loadNamedStyle(os.path.join(self.plugin_dir, "layer-styles/style_active.qml"))
-                    self.stationlayer_mapping[layer.name()] = {"uuid": uuid, "layer_id": layer.id(), "active": True}
+                    # first assignment of information to station uuid
+                    self.stationlayer_mapping[uuid]["active"] = True
                     self.dlg.textEditStationlayerMapping.setPlainText(str(self.stationlayer_mapping))
 
         # inform about subscribed stations
@@ -541,44 +542,41 @@ class QPegel(object):
         self.dlg.labelMessageCount.setText(f"Total messages received: {self.msg_counter}")
         # get layer fitting to message
         message_layer = None
+        uuid = msg["uuid"]
         for layer in QgsProject.instance().mapLayers().values():
-            if layer.metadata().identifier() == msg["uuid"]:
+            if layer.metadata().identifier() == uuid:
                 message_layer = layer
                 break
         if message_layer is None:
             print(f"could not handle message {msg} - could not find associated layer")
             return
 
-        # plot_mapping initialization
+        # plot data initialization
         entry = None
-        key = str(message_layer.name())
-        if key not in self.plot_mapping.keys():
-            self.plot_mapping[key] = {}
-
         # check/ add unit longnames to station
         longname = msg["timeseries"]["longname"]
-        if longname not in self.plot_mapping[key].keys():
+        if longname not in self.stationlayer_mapping[uuid]["data"].keys():
             entry = {
-                "data": [],
+                "values": [],
                 "timestamps": [],
                 "unit": msg["timeseries"]["unit"],
                 "type": msg["timeseries"]["measurement"].get("type", "measurement"),
                 "active": True
             }
-            self.plot_mapping[key][longname] = entry
+            self.stationlayer_mapping[uuid]["data"][longname] = entry
         else:
-            entry = self.plot_mapping[key][longname]
+            entry = self.stationlayer_mapping[uuid]["data"][longname]
 
         # add data if timestamp is new
         timestamp = pd.to_datetime(msg["timeseries"]["measurement"]["timestamp"])
         if timestamp not in entry["timestamps"]:
-            # plot_mapping data storage
+            # plot data storage
             entry["timestamps"].append(timestamp)
-            entry["data"].append({
+            entry["values"].append({
                 "timestamp": timestamp,
                 "value": msg["timeseries"]["measurement"]["value"],
             })
-            self.dlg.textEditPlotMapping.setPlainText(str(self.plot_mapping))
+            self.dlg.textEditStationlayerMapping.setPlainText(str(self.stationlayer_mapping))
             # map layer data storage
             feature = QgsFeature()
             feature.setAttributes([msg["timeseries"]["measurement"]["timestamp"],
@@ -603,16 +601,15 @@ class QPegel(object):
         for i in range(self.dlg.listWidgetLayers.count()):
             item = self.dlg.listWidgetLayers.item(i)
             if item.isSelected():
-                for name, info in self.stationlayer_mapping.items():
-                    uuid, layer_id, active = info["uuid"], info["layer_id"], info["active"]
+                for uuid, info in self.stationlayer_mapping.items():
                     # unsubscribe if currently subscribed
-                    if item.text() == name and active:
-                        unsubscribed_list.append(name)
-                        self.reader.unsubscribe(self.station_index[name]["mqtttopic"])
+                    if item.data(Qt.ItemDataRole.UserRole) == uuid and info["active"]:
+                        unsubscribed_list.append(uuid)
+                        self.reader.unsubscribe(self.station_index[uuid]["mqtttopic"])
                         # styles
-                        layer = QgsProject.instance().mapLayersByName(item.text())[0]
+                        layer = QgsProject.instance().mapLayer(info["layer_id"])
                         item.setIcon(QIcon(os.path.join(self.plugin_dir, "img_ui/circle_orange.svg")))
-                        self.stationlayer_mapping[name] = {"uuid": uuid, "layer_id": layer_id, "active": False}
+                        self.stationlayer_mapping[uuid]["active"] = False
                         layer.loadNamedStyle(os.path.join(self.plugin_dir, "layer-styles/style_inactive.qml"))
                         self.dlg.textEditStationlayerMapping.setPlainText(str(self.stationlayer_mapping))
                         break
@@ -654,16 +651,16 @@ class QPegel(object):
                 if self.stations_layer is None:
                     self.dlg.listWidgetLayers.takeItem(self.dlg.listWidgetLayers.row(item))
                 # collect all stations only in list-widget
-                elif item.text() not in self.stationlayer_mapping.keys():
+                elif item.data(Qt.ItemDataRole.UserRole) not in self.stationlayer_mapping.keys():
                     delete_station_list.append(item.text())
                     delete_unsubscribed_list.append(item)
                 # collect all stations available as layers & in stationlayer_mapping
                 else:
-                    for name, info in self.stationlayer_mapping.items():
+                    for uuid, info in self.stationlayer_mapping.items():
                         # ToDo: replace by uuid metadata
-                        layer = QgsProject.instance().mapLayersByName(item.text())[0]
-                        if item.text() == name:
-                            delete_station_list.append(name)
+                        layer = QgsProject.instance().mapLayer(info["layer_id"])
+                        if item.data(Qt.ItemDataRole.UserRole) == uuid:
+                            delete_station_list.append(info["name"])
                             delete_layer_list.append(layer)
 
         # triggers on_layer_removed and handles the removal of all relevant parts
@@ -674,7 +671,7 @@ class QPegel(object):
         for item in delete_unsubscribed_list:
             self.dlg.listWidgetLayers.takeItem(self.dlg.listWidgetLayers.row(item))
             with edit(self.stations_layer):
-                request = QgsFeatureRequest().setFilterExpression(f'"shortname" = \'{item.text()}\'')
+                request = QgsFeatureRequest().setFilterExpression(f'"uuid" = \'{item.data(Qt.ItemDataRole.UserRole)}\'')
                 for feature in self.stations_layer.getFeatures(request):
                     self.stations_layer.deleteFeature(feature.id())
 
@@ -698,19 +695,22 @@ class QPegel(object):
             self.polygon_layer = None
             self.handle_remove_polygon()
         # deleting steps for stations
-        for name, info in self.stationlayer_mapping.items():
-            uuid, layer_id, active = info["uuid"], info["layer_id"], info["active"]
-            if removed_layer_id == layer_id:
+        for uuid, info in self.stationlayer_mapping.items():
+            name = info["name"]
+            if removed_layer_id == info["layer_id"]:
                 # collect stations to delete from mappings
-                if name in self.stationlayer_mapping.keys():
-                    # ToDo replace by id/ uuid
-                    remove_list.append(name)
+                if uuid in self.stationlayer_mapping.keys():
+                    remove_list.append(uuid)
                 # remove from listWidgetLayers
                 if self.dlg.listWidgetLayers.count() > 0:
-                    item = self.dlg.listWidgetLayers.findItems(name, Qt.MatchFlag.MatchContains)[0]
-                    self.dlg.listWidgetLayers.takeItem(self.dlg.listWidgetLayers.row(item))
+                    items = self.dlg.listWidgetLayers.findItems("name", Qt.MatchFlag.MatchContains)
+                    for item in items:
+                        if item.data(Qt.ItemDataRole.UserRole) == uuid:
+                            remove_item = item
+                            break
+                    self.dlg.listWidgetLayers.takeItem(self.dlg.listWidgetLayers.row(remove_item))
                 # unsubscribe
-                self.reader.unsubscribe(self.station_index[name]["mqtttopic"])
+                self.reader.unsubscribe(self.station_index[uuid]["mqtttopic"])
                 # remove feature from self.stations_layer
                 if self.stations_layer is not None:
                     with edit(self.stations_layer):
@@ -718,15 +718,11 @@ class QPegel(object):
                         for feature in self.stations_layer.getFeatures(request):
                             self.stations_layer.deleteFeature(feature.id())
 
-        # remove from stationlayer_mapping & plot_mapping
-        # ToDo replace by id/ uuid
-        for name in remove_list:
-            self.stationlayer_mapping.pop(name)
-            if name in self.plot_mapping.keys():
-                self.plot_mapping.pop(name)
+        # remove from stationlayer_mapping
+        for uuid in remove_list:
+            self.stationlayer_mapping.pop(uuid)
 
         self.check_listwidget()
-        self.dlg.textEditPlotMapping.setPlainText(str(self.plot_mapping))
         self.dlg.textEditStationlayerMapping.setPlainText(str(self.stationlayer_mapping))
 
 
@@ -768,9 +764,9 @@ class QPegel(object):
                     excepted_layers.append(layer)
                 # add all inactive layers
                 if self.dlg.checkBoxOnlySubscribed.checkState() == Qt.CheckState.Checked:
-                    if layer.name() not in self.stationlayer_mapping.keys():
+                    if layer.metadata().identifier() not in self.stationlayer_mapping.keys():
                         excepted_layers.append(layer)
-                    elif self.stationlayer_mapping[layer.name()]["active"] == False:
+                    elif self.stationlayer_mapping[layer.metadata().identifier()]["active"] == False:
                         excepted_layers.append(layer)
             else:
                 excepted_layers.append(layer)
@@ -779,9 +775,9 @@ class QPegel(object):
     # check if any station is subscribed & handle plot if not
     def check_for_subscribed(self):
         active_list = []
-        for name, info in self.stationlayer_mapping.items():
-            if info["active"] == True:
-                active_list.append(name)
+        for uuid, info in self.stationlayer_mapping.items():
+            if info["active"]:
+                active_list.append(uuid)
         if self.stationlayer_mapping is not None:
             if len(self.stationlayer_mapping) == 0 or len(active_list) == 0:
                 self.refresh_view_data_tab()
@@ -792,7 +788,7 @@ class QPegel(object):
             self.plot_layer = self.dlg.mMapLayerComboBox.currentLayer()
             if self.plot_layer is not None:
                 if len(self.plot_layer) > 0:
-                    if self.plot_layer.name() in self.plot_mapping.keys():
+                    if self.plot_layer.metadata().identifier() in self.stationlayer_mapping.keys():
                         self.update_unit_checkbox()
                     else:
                         self.prepare_closed_layer_plot()
@@ -810,9 +806,9 @@ class QPegel(object):
         ax = self.figure.add_subplot(1, 1, 1)
         ax.set_xlabel("Time")
         ax.set_ylabel("Value")
-        if "[CLOSED]" in self.plot_layer.name() or self.plot_layer.name() not in self.stationlayer_mapping:
+        if "[CLOSED]" in self.plot_layer.metadata().identifier() or self.plot_layer.metadata().identifier() not in self.stationlayer_mapping:
             ax.set_title("No data available.")
-        elif self.plot_layer.name() in self.stationlayer_mapping.keys():
+        elif self.plot_layer.metadata().identifier() in self.stationlayer_mapping.keys():
             ax.set_title("No data available, station not subscribed")
         else:
             ax.set_title("Waiting for data...")
@@ -824,45 +820,48 @@ class QPegel(object):
         try:
             for feature in self.plot_layer.getFeatures():
                 d = None
-                if feature["longname"]:
-                    if feature["longname"] not in mapping:
+                if feature["uuid"]:
+                    if feature["uuid"] not in mapping:
                         d = {
-                            "data": [],
+                            "values": [],
                             "unit": feature["unit"],
                             "type": feature["type"],
                             "active": True
                         }
-                        mapping[feature["longname"]] = d
+                        mapping[feature["uuid"]]["data"] = d
                     else:
-                        d = mapping[feature["longname"]]
+                        d = mapping[feature["uuid"]]["data"]
                 # Parse data
-                d["data"].append(
+                d["values"].append(
                     {
                     "timestamp": pd.to_datetime(feature["timestamp"]),
                     "value": feature["value"],
                     }
                 )
-            self.plot_mapping[self.plot_layer.name()] = mapping
-            self.dlg.textEditPlotMapping.setPlainText(str(self.plot_mapping))
+            self.stationlayer_mapping[self.plot_layer.metadata().identifier()] = mapping
+            self.dlg.textEditStationlayerMapping.setPlainText(str(self.stationlayer_mapping))
         except Exception as e:
             print("Exception prepare_closed_layer_plot: ", e)
 
     # set active state in stationlayer_mapping
-    def on_checked_unit_change(self, items):
-        for key in self.plot_mapping[self.plot_layer.name()]:
-            if key not in items:
-                self.plot_mapping[self.plot_layer.name()][key]["active"] = False
-            else: self.plot_mapping[self.plot_layer.name()][key]["active"] = True
+    def on_checked_unit_change(self, units):
+        for unit in self.stationlayer_mapping[self.plot_layer.metadata().identifier()]["data"]:
+            if unit not in units:
+                self.stationlayer_mapping[self.plot_layer.metadata().identifier()]["data"] = False
+            else: self.stationlayer_mapping[self.plot_layer.metadata().identifier()]["data"] = True
         self.update_unit_checkbox()
-        self.dlg.textEditPlotMapping.setPlainText(str(self.plot_mapping))
+        self.dlg.textEditStationlayerMapping.setPlainText(str(self.stationlayer_mapping))
 
     # updates checkboxes by state & plots when checked units change
     def update_unit_checkbox(self):
-        mapping = self.plot_mapping[self.plot_layer.name()]
+        print("plot_layer: " + self.plot_layer.name())
+        if not self.stationlayer_mapping[self.plot_layer.metadata().identifier()]["data"]:
+            print("no data existing" + self.plot_layer.name())
+        mapping = self.stationlayer_mapping[self.plot_layer.metadata().identifier()]["data"]
         self.dlg.mComboBoxUnit.clear()
-        for key, value in mapping.items():
+        for unit, info in mapping.items():
             # add unit-names to combobox
-            self.dlg.mComboBoxUnit.addItemWithCheckState(key, Qt.CheckState.Checked if value[
+            self.dlg.mComboBoxUnit.addItemWithCheckState(unit, Qt.CheckState.Checked if info[
                 "active"] else Qt.CheckState.Unchecked)
         self.update_plot()
 
@@ -875,13 +874,13 @@ class QPegel(object):
         colors = plt.cm.tab10.colors
 
         # plot df of each checked unit
-        for i, longname in enumerate(self.dlg.mComboBoxUnit.checkedItems()):
-            data = self.plot_mapping[self.plot_layer.name()][longname]["data"]
+        for i, unit_longname in enumerate(self.dlg.mComboBoxUnit.checkedItems()):
+            data = self.stationlayer_mapping[self.plot_layer.metadata().identifier()]["data"][unit_longname]["values"]
             df = pd.DataFrame(data, columns=['timestamp', 'value'])
             df = df.sort_values(by=['timestamp'])
-            unit_short = self.plot_mapping[self.plot_layer.name()][longname]["unit"]
+            unit_shortname = self.stationlayer_mapping[self.plot_layer.metadata().identifier()]["data"][unit_longname]["unit"]
             color = colors[i]
-            ylabel = f"{longname} [{unit_short}]"
+            ylabel = f"{unit_longname} [{unit_shortname}]"
             # simple plot for 1 checked unit
             if i == 0:
                 curr_ax = ax_main
@@ -904,9 +903,16 @@ class QPegel(object):
         # general lables and title variations
         ax_main.set_xlabel("Time")
         station_name = self.dlg.mMapLayerComboBox.currentText()
+
+        for uuid, info in self.stationlayer_mapping:
+            if info["layer_id"] == self.dlg.mMapLayerComboBox.currentLayer().id():
+                station_uuid = uuid
+                break
+
+        station_id = self.dlg.mMapLayerComboBox.id()
         status = ""
         if station_name in self.stationlayer_mapping:
-            status = " (subscribed)" if self.stationlayer_mapping[station_name]["active"] else " (not subscribed)"
+            status = " (subscribed)" if self.stationlayer_mapping[station_uuid]["active"] else " (not subscribed)"
         ax_main.set_title(f"{station_name}{status}")
         # plot appearence settings
         self.canvas.figure.autofmt_xdate()
@@ -956,12 +962,11 @@ class QPegel(object):
                 self.group.setExpanded(False)
                 self.stations_layer.loadNamedStyle(os.path.join(self.plugin_dir, "layer-styles/style_stations_closed.qml"))
                 self.stations_layer = None
-                for name, info in self.stationlayer_mapping.items():
-                    uuid, layer_id, active = info["uuid"], info["layer_id"], info["active"]
-                    layer = QgsProject.instance().mapLayersByName(name)[0]
+                for uuid, info in self.stationlayer_mapping.items():
+                    layer = QgsProject.instance().mapLayer(info["layer_id"])
                     if info["active"] is True:
-                        self.reader.unsubscribe(self.station_index[layer.name()]["mqtttopic"])
-                        self.stationlayer_mapping[layer.name()] = {"uuid": uuid, "layer_id": layer_id, "active": False}
+                        self.reader.unsubscribe(self.station_index[uuid]["mqtttopic"])
+                        self.stationlayer_mapping[uuid]["active"] = False
                     layer.loadNamedStyle(os.path.join(self.plugin_dir, "layer-styles/style_closed.qml"))
                     layer.setName("[CLOSED] " + layer.name())
 
@@ -990,7 +995,6 @@ class QPegel(object):
         self.stationlayer_mapping = {}
         self.msg_counter = 0
         self.plot_layer = None
-        self.plot_mapping = {}
         self.dlg.listWidgetLayers.clear()
 
         # disconnect & close

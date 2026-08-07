@@ -259,7 +259,7 @@
        <bool>false</bool>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab1Request">
        <property name="enabled">
@@ -852,16 +852,6 @@
             </item>
             <item>
              <widget class="QTextEdit" name="textEditStationlayerMapping"/>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_7">
-              <property name="text">
-               <string>Plot Mapping</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QTextEdit" name="textEditPlotMapping"/>
             </item>
            </layout>
           </widget>
