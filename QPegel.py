@@ -163,8 +163,32 @@ class QPegel(object):
     # creates a new group for session layers
     def create_session_group(self):
         self.group_name = "Session - " + str(datetime.now().replace(microsecond=0))
-        self.group = QgsLayerTreeGroup(self.group_name)
-        self.root.insertChildNode(0, self.group)
+        # addGroup() returns a node OWNED by the layer tree; do not keep a
+        # raw QgsLayerTreeGroup() that the tree can delete underneath us.
+        self.group = self.root.insertGroup(0, self.group_name)
+
+    # returns the group node if it still exists, else None. The cached
+    # self.group can become a dangling C++ wrapper (Layers panel removal,
+    # project reload, ...); accessing it then raises RuntimeError.
+    def get_layergroup(self):
+        if self.group is not None:
+            try:
+                # any access on a dangling wrapper raises RuntimeError
+                self.group.name()
+                return self.group
+            except RuntimeError:
+                self.group = None
+        # try to recover an existing group by name
+        if self.group_name:
+            self.group = self.root.findGroup(self.group_name)
+        return self.group
+
+    # gets the current group, (re-)creates a group if none exists.
+    def ensure_group(self):
+        group = self.get_layergroup()
+        if group is None:
+            self.create_session_group()
+        return self.group
 
 
 
@@ -203,8 +227,8 @@ class QPegel(object):
             if self.group_name == "":
                 self.create_session_group()
                 self.dlg.pushButtonAddPolygon.setEnabled(True)
-            elif self.group is None:
-                self.create_session_group()
+            else:
+                self.ensure_group()
             #self.dlg.textEditRequest.setPlainText("")
             self.dlg.mGroupBoxUserAuthentification.setCollapsed(True)
             self.dlg.tab1Request.setEnabled(True)
@@ -255,7 +279,7 @@ class QPegel(object):
 
     # change layer styles
     def change_session_station_styles(self, state: str):
-        if self.group is not None:
+        if self.get_layergroup() is not None:
             for name, info in self.stationlayer_mapping.items():
                 layer = QgsProject.instance().mapLayersByName(name)[0]
                 if info["active"] is True:
@@ -282,14 +306,12 @@ class QPegel(object):
         )
         self.dlg.pushButtonAddPolygon.setEnabled(False)
         self.dlg.pushButtonSend.setEnabled(False)
-        # create group if not existing
-        if self.group is None:
-            self.create_session_group()
+        # group is ensured below via ensure_group() on insert
         # create new vector layer and add it to the map
         self.polygon_layer = QgsVectorLayer("Polygon?crs=EPSG:25832", "Polygon", "memory")
         self.polygon_layer_id = self.polygon_layer.id()
         QgsProject.instance().addMapLayer(self.polygon_layer, False)
-        self.group.insertChildNode(-1, QgsLayerTreeLayer(self.polygon_layer))
+        self.ensure_group().addLayer(self.polygon_layer)
         self.polygon_layer.loadNamedStyle(os.path.join(self.plugin_dir, "layer-styles/style_polygons.qml"))
 
         # set layer active and start editing
@@ -372,14 +394,13 @@ class QPegel(object):
 
     # add new stations to station_layer
     def add_station_points(self):
-        if self.group is None:
-            self.create_session_group()
+        # group is ensured below via ensure_group() on insert
         # create and add layer for station points
         if self.stations_layer is None:
             self.stations_layer = QgsVectorLayer("Point?crs=EPSG:25832", "Stations", "memory")
             self.stations_layer_id = self.stations_layer.id()
             QgsProject.instance().addMapLayer(self.stations_layer, False)
-            self.group.insertChildNode(0, QgsLayerTreeLayer(self.stations_layer))
+            self.ensure_group().insertLayer(0, self.stations_layer)
             self.stations_layer.loadNamedStyle(os.path.join(self.plugin_dir, "layer-styles/style_stations.qml"))
             # add attributes to layer
             self.stations_layer.dataProvider().addAttributes([QgsField("uuid", QVariant.String),
@@ -493,7 +514,7 @@ class QPegel(object):
                     layer = QgsVectorLayer("Point?crs=EPSG:25832", item.text(), "memory")
                     QgsProject.instance().addMapLayer(layer, False)
                     self.dlg.textEditStationlayerMapping.setPlainText(str(self.stationlayer_mapping))
-                    self.group.insertChildNode(0, QgsLayerTreeLayer(layer))
+                    self.ensure_group().insertLayer(0, layer)
                     layer.dataProvider().addAttributes([QgsField("timestamp", QVariant.String),
                                                         QgsField("longname", QVariant.String),
                                                         QgsField("value", QVariant.Double),
@@ -946,14 +967,17 @@ class QPegel(object):
 
     # quits the session, resets & closes the plugin
     def quitsessionbtn_clicked(self):
-        if self.group is not None:
+        # teardown path: use the live group if it still exists, but do NOT
+        # re-create one (that would leave a stray empty session group).
+        group = self.get_layergroup()
+        if group is not None:
             # remove group if task is undone
             if self.stations_layer is None or len(self.stationlayer_mapping) == 0:
-                self.root.removeChildNode(self.group)
+                self.root.removeChildNode(group)
             # change layer styles, states & unsubscribe
             else:
-                self.group.setItemVisibilityChecked(False)
-                self.group.setExpanded(False)
+                group.setItemVisibilityChecked(False)
+                group.setExpanded(False)
                 self.stations_layer.loadNamedStyle(os.path.join(self.plugin_dir, "layer-styles/style_stations_closed.qml"))
                 self.stations_layer = None
                 for name, info in self.stationlayer_mapping.items():
