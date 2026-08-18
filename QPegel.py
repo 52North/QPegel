@@ -44,7 +44,6 @@ from .QPegel_dialog import QPegelDialog
 from .mqtt_connector import EDISConnector
 
 
-
 class QPegel(object):
     reader: EDISConnector
 
@@ -720,16 +719,12 @@ class QPegel(object):
             name = info["name"]
             if removed_layer_id == info["layer_id"]:
                 # collect stations to delete from mappings
-                if uuid in self.stationlayer_mapping.keys():
-                    remove_list.append(uuid)
+                remove_list.append(uuid)
                 # remove from listWidgetLayers
                 if self.dlg.listWidgetLayers.count() > 0:
-                    items = self.dlg.listWidgetLayers.findItems("name", Qt.MatchFlag.MatchContains)
-                    for item in items:
-                        if item.data(Qt.ItemDataRole.UserRole) == uuid:
-                            remove_item = item
-                            break
-                    self.dlg.listWidgetLayers.takeItem(self.dlg.listWidgetLayers.row(remove_item))
+                    item = self.dlg.listWidgetLayers.findItems(name, Qt.MatchFlag.MatchContains)[0]
+                    self.dlg.listWidgetLayers.takeItem(self.dlg.listWidgetLayers.row(item))
+
                 # unsubscribe
                 self.reader.unsubscribe(self.station_index[uuid]["mqtttopic"])
                 # remove feature from self.stations_layer
@@ -838,31 +833,38 @@ class QPegel(object):
     # prepare plot if data needs to be fetched from a closed layer
     def prepare_closed_layer_plot(self):
         mapping = {}
-        try:
-            for feature in self.plot_layer.getFeatures():
-                d = None
-                if feature["uuid"]:
-                    if feature["uuid"] not in mapping:
-                        d = {
-                            "values": [],
-                            "unit": feature["unit"],
-                            "type": feature["type"],
-                            "active": True
-                        }
-                        mapping[feature["uuid"]]["data"] = d
-                    else:
-                        d = mapping[feature["uuid"]]["data"]
-                # Parse data
-                d["values"].append(
-                    {
+        for feature in self.plot_layer.getFeatures():
+            longname_data = None
+            if feature["longname"]:
+                if feature["longname"] not in mapping:
+                    longname_data = {
+                        "values": [],
+                        "timestamps": [],
+                        "unit": feature["unit"],
+                        "type": feature["type"],
+                        "active": True
+                    }
+                    mapping[feature["longname"]] = longname_data
+                else:
+                    longname_data = mapping[feature["longname"]]
+            # Parse data
+            longname_data["values"].append(
+                {
                     "timestamp": pd.to_datetime(feature["timestamp"]),
                     "value": feature["value"],
+                }
+            )
+            if feature["timestamp"] not in longname_data["timestamps"]:
+                longname_data["timestamps"].append(
+                    {
+                        "timestamp": pd.to_datetime(feature["timestamp"]),
                     }
                 )
-            self.stationlayer_mapping[self.plot_layer.metadata().identifier()] = mapping
-            self.dlg.textEditStationlayerMapping.setPlainText(str(self.stationlayer_mapping))
-        except Exception as e:
-            print("Exception prepare_closed_layer_plot: ", e)
+
+        uuid = self.plot_layer.metadata().identifier()
+        if uuid not in self.stationlayer_mapping:
+            self.stationlayer_mapping[uuid]["data"] = mapping
+        self.dlg.textEditStationlayerMapping.setPlainText(str(self.stationlayer_mapping))
 
     # set active state in stationlayer_mapping
     def on_checked_unit_change(self, units):
@@ -876,15 +878,19 @@ class QPegel(object):
     # updates checkboxes by state & plots when checked units change
     def update_unit_checkbox(self):
         print("plot_layer: " + self.plot_layer.name())
-        if not self.stationlayer_mapping[self.plot_layer.metadata().identifier()]["data"]:
-            print("no data existing" + self.plot_layer.name())
-        mapping = self.stationlayer_mapping[self.plot_layer.metadata().identifier()]["data"]
-        self.dlg.mComboBoxUnit.clear()
-        for unit, info in mapping.items():
-            # add unit-names to combobox
-            self.dlg.mComboBoxUnit.addItemWithCheckState(unit, Qt.CheckState.Checked if info[
-                "active"] else Qt.CheckState.Unchecked)
-        self.update_plot()
+        uuid = self.plot_layer.metadata().identifier()
+        if uuid in self.stationlayer_mapping:
+            print(self.stationlayer_mapping[uuid])
+            if len(self.stationlayer_mapping[uuid]) == 0:
+                print("no data existing" + self.plot_layer.name())
+            mapping = self.stationlayer_mapping[uuid]
+            self.dlg.mComboBoxUnit.clear()
+            for unit, info in mapping.items():
+                # add unit-names to combobox
+                self.dlg.mComboBoxUnit.addItemWithCheckState(unit, Qt.CheckState.Checked if info[
+                    "active"] else Qt.CheckState.Unchecked)
+            self.update_plot()
+        else: print("station not available")
 
     # updates plots by new incoming data or checked unit changes
     def update_plot(self):
@@ -918,22 +924,20 @@ class QPegel(object):
                     curr_ax.spines['right'].set_position(('outward', offset))
                 curr_ax.set_ylabel(ylabel, color=color)
             # add current ax to plot
-            curr_ax.plot(df["timestamp"], df["value"], label=longname, color=color, marker='o', markersize=2)
+            curr_ax.plot(df["timestamp"], df["value"], label=unit_longname, color=color, marker='o', markersize=2)
             curr_ax.tick_params(axis='y', labelcolor=color)
 
         # general lables and title variations
         ax_main.set_xlabel("Time")
         station_name = self.dlg.mMapLayerComboBox.currentText()
 
-        for uuid, info in self.stationlayer_mapping:
+        status = ""
+        for uuid, info in self.stationlayer_mapping.items():
             if info["layer_id"] == self.dlg.mMapLayerComboBox.currentLayer().id():
                 station_uuid = uuid
+                status = " (subscribed)" if self.stationlayer_mapping[station_uuid]["active"] else " (not subscribed)"
                 break
 
-        station_id = self.dlg.mMapLayerComboBox.id()
-        status = ""
-        if station_name in self.stationlayer_mapping:
-            status = " (subscribed)" if self.stationlayer_mapping[station_uuid]["active"] else " (not subscribed)"
         ax_main.set_title(f"{station_name}{status}")
         # plot appearence settings
         self.canvas.figure.autofmt_xdate()
