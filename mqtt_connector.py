@@ -75,7 +75,7 @@ class EDISConnector(QThread):
         self.mqtt_client.unsubscribe(topic)
 
     def on_message(self, client, userdata, msg):
-        print("new message: ", msg.topic)
+        #print("new message: ", msg.topic)
         self.new_message.emit(json.loads(msg.payload))
 
     def on_disconnect(self, client, _, flags, reason_code, properties):

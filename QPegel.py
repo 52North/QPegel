@@ -24,6 +24,7 @@ from qgis.PyQt.QtGui import *
 from qgis.PyQt.QtWidgets import *
 from qgis.PyQt.QtCore import *
 from qgis.PyQt.QtCore import QT_VERSION_STR
+from qgis.PyQt import sip
 
 from qgis.core import *
 
@@ -235,9 +236,8 @@ class QPegel(object):
             # layer styles
             if len(self.stationlayer_mapping) > 0:
                 for uuid, info in self.stationlayer_mapping.items():
-                    name, layer_id, active = info["name"], info["layer_id"], info["active"]
-                    if info["active"] == True:
-                        self.reader.subscribe(self.station_index[name]["mqtttopic"])
+                    if info["active"]:
+                        self.reader.subscribe(self.station_index[uuid]["mqtttopic"])
                 self.change_session_station_styles("active")
         # handle different status cases
         elif msg == "Bad user name or password":
@@ -708,41 +708,43 @@ class QPegel(object):
 
     # different remove actions for different layers
     def on_layer_removed(self, removed_layer_id):
-        self.refresh_view_data_tab()
-        remove_list = []
-        # check kind of layer and handle individual removal steps
-        if removed_layer_id == self.stations_layer_id:
-            QMessageBox.warning(None, "Warning:", f"Warning: \n removed layer is stations layer \n ")
-            self.stations_layer = None
-        if removed_layer_id == self.polygon_layer_id:
-            self.polygon_layer = None
-            self.handle_remove_polygon()
-        # deleting steps for stations
-        for uuid, info in self.stationlayer_mapping.items():
-            name = info["name"]
-            if removed_layer_id == info["layer_id"]:
-                # collect stations to delete from mappings
-                remove_list.append(uuid)
-                # remove from listWidgetLayers
-                if self.dlg.listWidgetLayers.count() > 0:
-                    item = self.dlg.listWidgetLayers.findItems(name, Qt.MatchFlag.MatchContains)[0]
-                    self.dlg.listWidgetLayers.takeItem(self.dlg.listWidgetLayers.row(item))
+            if sip.isdeleted(self.dlg):
+                return
+            self.refresh_view_data_tab()
+            remove_list = []
+            # check kind of layer and handle individual removal steps
+            if removed_layer_id == self.stations_layer_id:
+                QMessageBox.warning(None, "Warning:", f"Warning: \n removed layer is stations layer \n ")
+                self.stations_layer = None
+            if removed_layer_id == self.polygon_layer_id:
+                self.polygon_layer = None
+                self.handle_remove_polygon()
+            # deleting steps for stations
+            for uuid, info in self.stationlayer_mapping.items():
+                name = info["name"]
+                if removed_layer_id == info["layer_id"]:
+                    # collect stations to delete from mappings
+                    remove_list.append(uuid)
+                    # remove from listWidgetLayers
+                    if self.dlg.listWidgetLayers.count() > 0:
+                        item = self.dlg.listWidgetLayers.findItems(name, Qt.MatchFlag.MatchContains)[0]
+                        self.dlg.listWidgetLayers.takeItem(self.dlg.listWidgetLayers.row(item))
 
-                # unsubscribe
-                self.reader.unsubscribe(self.station_index[uuid]["mqtttopic"])
-                # remove feature from self.stations_layer
-                if self.stations_layer is not None:
-                    with edit(self.stations_layer):
-                        request = QgsFeatureRequest().setFilterExpression(f'"shortname" = \'{name}\'')
-                        for feature in self.stations_layer.getFeatures(request):
-                            self.stations_layer.deleteFeature(feature.id())
+                    # unsubscribe
+                    self.reader.unsubscribe(self.station_index[uuid]["mqtttopic"])
+                    # remove feature from self.stations_layer
+                    if self.stations_layer is not None:
+                        with edit(self.stations_layer):
+                            request = QgsFeatureRequest().setFilterExpression(f'"shortname" = \'{name}\'')
+                            for feature in self.stations_layer.getFeatures(request):
+                                self.stations_layer.deleteFeature(feature.id())
 
-        # remove from stationlayer_mapping
-        for uuid in remove_list:
-            self.stationlayer_mapping.pop(uuid)
+            # remove from stationlayer_mapping
+            for uuid in remove_list:
+                self.stationlayer_mapping.pop(uuid)
 
-        self.check_listwidget()
-        self.dlg.textEditStationlayerMapping.setPlainText(str(self.stationlayer_mapping))
+            self.check_listwidget()
+            self.dlg.textEditStationlayerMapping.setPlainText(str(self.stationlayer_mapping))
 
 
 
@@ -989,3 +991,5 @@ class QPegel(object):
             level=Qgis.MessageLevel.Info,
             duration=3)
         self.handle_remove_polygon()
+
+
