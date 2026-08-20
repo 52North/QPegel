@@ -275,7 +275,7 @@ class QPegel(object):
         else:
             pass
 
-    # change layer styles
+    # change layer styles with subscribing/ unsubscribing to stations
     def change_session_station_styles(self, state: str):
         if self.get_layergroup() is not None:
             for uuid, info in self.stationlayer_mapping.items():
@@ -340,12 +340,14 @@ class QPegel(object):
         # update request with finished polygon
         self.update_request()
 
-    # informs the user if parameters are active while the groupbox is collapsed
+    # informs the user whether parameters are active while the groupbox is collapsed
+    # showing an additional text field in the dropdown heading
     def parameter_info(self):
         base_title = "Additional Parameters"
         if self.dlg.mGroupBoxParameter.isCollapsed():
             textfields = [self.dlg.lineEditStation.text(), self.dlg.lineEditGewaesser.text(), self.dlg.lineEditParameter.text(), self.dlg.lineEditQ.text()]
             filled_count = sum(1 for field in textfields if field.strip())
+            # set Text if one or more fields are not empty
             if not all(not field.strip() for field in textfields):
                 self.dlg.mGroupBoxParameter.setTitle(f"{base_title} [{filled_count} active]")
             else: self.dlg.mGroupBoxParameter.setTitle(base_title)
@@ -358,12 +360,14 @@ class QPegel(object):
             bbox_str = ""
         else:
             bbox_str = str(self.bbox).replace("[", "").replace("]", "")
+        # get parameter inputs
         self.url_parameters["bbox"] = bbox_str
         self.url_parameters["q"] = self.dlg.lineEditQ.text()
         self.url_parameters["gewaesser"] = self.dlg.lineEditGewaesser.text()
         self.url_parameters["station"] = self.dlg.lineEditStation.text()
         self.url_parameters["parameter"] = self.dlg.lineEditParameter.text()
         parameters = ["bbox", "station", "gewaesser", "parameter", "q"]
+        # delete all empty parameters
         for param in parameters:
             if self.url_parameters[param] == "":
                 self.url_parameters.pop(param)
@@ -677,7 +681,6 @@ class QPegel(object):
                 # collect all stations available as layers & in stationlayer_mapping
                 else:
                     for uuid, info in self.stationlayer_mapping.items():
-                        # ToDo: replace by uuid metadata
                         layer = QgsProject.instance().mapLayer(info["layer_id"])
                         if item.data(Qt.ItemDataRole.UserRole) == uuid:
                             delete_station_list.append(info["name"])
@@ -806,9 +809,6 @@ class QPegel(object):
                 if len(self.plot_layer) > 0:
                     if self.plot_layer.metadata().identifier() in self.stationlayer_mapping.keys():
                         self.update_unit_checkbox()
-                    else:
-                        self.prepare_closed_layer_plot()
-                        self.update_unit_checkbox()
                 else:
                     self.dlg.mComboBoxUnit.clear()
                     self.initial_plot()
@@ -822,75 +822,34 @@ class QPegel(object):
         ax = self.figure.add_subplot(1, 1, 1)
         ax.set_xlabel("Time")
         ax.set_ylabel("Value")
-        if "[CLOSED]" in self.plot_layer.metadata().identifier() or self.plot_layer.metadata().identifier() not in self.stationlayer_mapping:
-            ax.set_title("No data available.")
-        elif self.plot_layer.metadata().identifier() in self.stationlayer_mapping.keys():
-            ax.set_title("No data available, station not subscribed")
+        if self.plot_layer.metadata().identifier() in self.stationlayer_mapping.keys():
+            ax.set_title("No data available")
         else:
             ax.set_title("Waiting for data...")
         self.canvas.draw()
-
-    # prepare plot if data needs to be fetched from a closed layer
-    def prepare_closed_layer_plot(self):
-        mapping = {}
-        for feature in self.plot_layer.getFeatures():
-            longname_data = None
-            if feature["longname"]:
-                if feature["longname"] not in mapping:
-                    longname_data = {
-                        "values": [],
-                        "timestamps": [],
-                        "unit": feature["unit"],
-                        "type": feature["type"],
-                        "active": True
-                    }
-                    mapping[feature["longname"]] = longname_data
-                else:
-                    longname_data = mapping[feature["longname"]]
-            # Parse data
-            longname_data["values"].append(
-                {
-                    "timestamp": pd.to_datetime(feature["timestamp"]),
-                    "value": feature["value"],
-                }
-            )
-            if feature["timestamp"] not in longname_data["timestamps"]:
-                longname_data["timestamps"].append(
-                    {
-                        "timestamp": pd.to_datetime(feature["timestamp"]),
-                    }
-                )
-
-        uuid = self.plot_layer.metadata().identifier()
-        if uuid not in self.stationlayer_mapping:
-            self.stationlayer_mapping[uuid]["data"] = mapping
-        self.dlg.textEditStationlayerMapping.setPlainText(str(self.stationlayer_mapping))
 
     # set active state in stationlayer_mapping
     def on_checked_unit_change(self, units):
         for unit in self.stationlayer_mapping[self.plot_layer.metadata().identifier()]["data"]:
             if unit not in units:
-                self.stationlayer_mapping[self.plot_layer.metadata().identifier()]["data"] = False
-            else: self.stationlayer_mapping[self.plot_layer.metadata().identifier()]["data"] = True
+                self.stationlayer_mapping[self.plot_layer.metadata().identifier()]["data"][unit]["active"] = False
+            else: self.stationlayer_mapping[self.plot_layer.metadata().identifier()]["data"][unit]["active"] = True
         self.update_unit_checkbox()
         self.dlg.textEditStationlayerMapping.setPlainText(str(self.stationlayer_mapping))
 
     # updates checkboxes by state & plots when checked units change
     def update_unit_checkbox(self):
-        print("plot_layer: " + self.plot_layer.name())
         uuid = self.plot_layer.metadata().identifier()
+        # check if uuid exists and if data is available
         if uuid in self.stationlayer_mapping:
-            print(self.stationlayer_mapping[uuid])
-            if len(self.stationlayer_mapping[uuid]) == 0:
-                print("no data existing" + self.plot_layer.name())
-            mapping = self.stationlayer_mapping[uuid]
+            # clear the combobox before re-filling
             self.dlg.mComboBoxUnit.clear()
-            for unit, info in mapping.items():
-                # add unit-names to combobox
-                self.dlg.mComboBoxUnit.addItemWithCheckState(unit, Qt.CheckState.Checked if info[
-                    "active"] else Qt.CheckState.Unchecked)
+            # search for all existing unit names and check their active state
+            for unit, info in self.stationlayer_mapping[uuid]["data"].items():
+                # add unit-names to combobox if active
+                self.dlg.mComboBoxUnit.addItemWithCheckState(unit, Qt.CheckState.Checked if self.stationlayer_mapping[uuid]["data"][unit]["active"] else Qt.CheckState.Unchecked)
+            # update plot with currently active units
             self.update_plot()
-        else: print("station not available")
 
     # updates plots by new incoming data or checked unit changes
     def update_plot(self):
@@ -986,17 +945,13 @@ class QPegel(object):
                 self.root.removeChildNode(group)
             # change layer styles, states & unsubscribe
             else:
-                group.setItemVisibilityChecked(False)
-                group.setExpanded(False)
-                self.stations_layer.loadNamedStyle(os.path.join(self.plugin_dir, "layer-styles/style_stations_closed.qml"))
                 self.stations_layer = None
                 for uuid, info in self.stationlayer_mapping.items():
                     layer = QgsProject.instance().mapLayer(info["layer_id"])
                     if info["active"] is True:
                         self.reader.unsubscribe(self.station_index[uuid]["mqtttopic"])
                         self.stationlayer_mapping[uuid]["active"] = False
-                    layer.loadNamedStyle(os.path.join(self.plugin_dir, "layer-styles/style_closed.qml"))
-                    layer.setName("[CLOSED] " + layer.name())
+                self.root.removeChildNode(group)
 
         # reset steps
         self.dlg.mGroupBoxUserAuthentification.setCollapsed(False)
