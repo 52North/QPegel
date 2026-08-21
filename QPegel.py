@@ -708,8 +708,6 @@ class QPegel(object):
 
     # different remove actions for different layers
     def on_layer_removed(self, removed_layer_id):
-            if sip.isdeleted(self.dlg):
-                return
             self.refresh_view_data_tab()
             remove_list = []
             # check kind of layer and handle individual removal steps
@@ -981,6 +979,7 @@ class QPegel(object):
         self.msg_counter = 0
         self.plot_layer = None
         self.dlg.listWidgetLayers.clear()
+        self.dlg.tabWidget.setCurrentWidget(self.dlg.tabWidget.findChild(QWidget, "tab1Request"))
 
         # disconnect & close
         self.disconnectbtn_clicked()
