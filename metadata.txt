@@ -17,5 +17,3 @@ tags=web, api, dict-api, mqtt, IoT, sensors, sensor-data, plots, real-time, hydr
 
 supportsQt6=True
 experimental=True
-
-plugin_dependencies=qpip

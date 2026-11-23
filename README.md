@@ -15,9 +15,11 @@ The plugin was developed based on the [PegelOnline](https://www.pegelonline.wsv.
 
 > - This plugin is currently only usable with valid user data. If you are interested to use it, please contact <edis@itzbund.de>.
 > 
-> - A minimum QGIS version of 3.0 is required.
+> - A minimum QGIS version of 3.22 is required.
 > 
 > - To connect and receive data, a stable internet connection is required.
+> 
+> - The Python packages `pandas` and `matplotlib` must be available in the QGIS Python environment. They are included in the official Windows and macOS installers; on Linux install them via your package manager (e.g. `python3-pandas python3-matplotlib`). `paho-mqtt` is bundled with the plugin.
 > 
 > - If interested, find more detailed information in the [Documentation](https://github.com/52North/QPegel/blob/master/docs/documentation.md)
 
@@ -30,10 +32,15 @@ The plugin was developed based on the [PegelOnline](https://www.pegelonline.wsv.
 4. Click "Install Plugin"
 5. Click **Yes**
 <img src="docs/img/security_warning.png" width="40%"/>
-6. For the next two screens, check the settings and click **OK**
-<img src="docs/img/qpip_install.png" width="50%"/>
-<img src="docs/img/dependency_manager.png" width="70%"/>
-7. Check for the QPegel logo in your QGIS toolbars. If necessary, add the "Plugins Toolbar" to your QGIS interface
+6. Check for the QPegel logo in your QGIS toolbars. If necessary, add the "Plugins Toolbar" to your QGIS interface
+
+## Building the plugin zip
+
+```bash
+python scripts/build_zip.py
+```
+
+This creates `dist/QPegel.zip` with `paho-mqtt` (from `requirements-bundle.txt`) bundled in `ext_libs/`.
 
 ## Core Features
 ### Station Search & Handling
@@ -76,7 +83,6 @@ The plugin was developed based on the [PegelOnline](https://www.pegelonline.wsv.
     - choose a station
     - choose visible units (if >1 available)
 7. **Wait and see new data arrive...**
-
 
 
 

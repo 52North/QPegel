@@ -19,7 +19,6 @@ QGIS plugin
 ***************************************************************************
 """
 
-
 import json
 
 import paho.mqtt.client as mqtt
@@ -33,7 +32,9 @@ class EDISConnector(QThread):
 
     mqtt_client: mqtt.Client
 
-    def __init__(self, parent=None, hostname=None, port=None, username=None, password=None):
+    def __init__(
+        self, parent=None, hostname=None, port=None, username=None, password=None
+    ):
         super().__init__(parent)
 
         self.hostname = hostname
@@ -75,7 +76,7 @@ class EDISConnector(QThread):
         self.mqtt_client.unsubscribe(topic)
 
     def on_message(self, client, userdata, msg):
-        #print("new message: ", msg.topic)
+        # print("new message: ", msg.topic)
         self.new_message.emit(json.loads(msg.payload))
 
     def on_disconnect(self, client, _, flags, reason_code, properties):

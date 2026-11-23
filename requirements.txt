@@ -1,3 +1,4 @@
-paho-mqtt
+# Development dependencies.
+-r requirements-bundle.txt
 pandas
 matplotlib
