@@ -40,7 +40,7 @@ The plugin was developed based on the [PegelOnline](https://www.pegelonline.wsv.
 python scripts/build_zip.py
 ```
 
-This creates `dist/QPegel.zip` with `paho-mqtt` (from `requirements-bundle.txt`) bundled in `ext_libs/`.
+This creates `dist/QPegel.zip`.
 
 ## Core Features
 ### Station Search & Handling

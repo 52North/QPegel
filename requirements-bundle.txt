@@ -1,2 +1,2 @@
-# Development dependencies.
-paho-mqtt
+# Bundled dependencies.
+paho-mqtt==2.2.0

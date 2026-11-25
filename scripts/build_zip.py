@@ -72,6 +72,12 @@ def main() -> int:
                 ],
                 check=True,
             )
+            for patch in sorted((ROOT / "patches").glob("*.patch")):
+                subprocess.run(
+                    ["git", "apply", "--verbose", str(patch)],
+                    cwd=libs,
+                    check=True,
+                )
             # bin/ (console scripts) is useless inside a QGIS plugin;
             # *.dist-info is kept: it carries the license files
             for file in sorted(Path(libs).rglob("*")):

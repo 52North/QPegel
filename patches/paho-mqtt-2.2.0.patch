@@ -1,0 +1,48 @@
+diff --git a/paho/mqtt/client.py b/paho/mqtt/client.py
+index 697605e..3b74f0f 100644
+--- a/paho/mqtt/client.py
++++ b/paho/mqtt/client.py
+@@ -20,6 +20,7 @@ from __future__ import annotations
+ 
+ import base64
+ import collections
++import contextlib
+ import errno
+ import hashlib
+ import logging
+@@ -1465,10 +1466,8 @@ class Client:
+         for answer in answers:
+             host, port, _prio, _weight = answer
+ 
+-            try:
++            with contextlib.suppress(Exception):
+                 return self.connect(host, port, keepalive, bind_address, bind_port, clean_start, properties)
+-            except Exception:  # noqa: S110,BLE001
+-                pass
+ 
+         raise ValueError("No SRV hosts responded")
+ 
+@@ -3259,11 +3258,10 @@ class Client:
+     def _easy_log(self, level: LogLevel, fmt: str, *args: Any) -> None:
+         if self.on_log is not None:
+             buf = fmt % args
+-            try:
++            # Can't _easy_log a failure here, as we'll recurse until we break;
++            # self._logger will pick this up, so we're fine
++            with contextlib.suppress(Exception):
+                 self.on_log(self, self._userdata, level, buf)
+-            except Exception:  # noqa: S110,BLE001
+-                # Can't _easy_log this, as we'll recurse until we break
+-                pass  # self._logger will pick this up, so we're fine
+         if self._logger is not None:
+             level_std = LOGGING_LEVEL[level]
+             self._logger.log(level_std, fmt, *args)
+@@ -4746,7 +4744,7 @@ class _WebsocketWrapper:
+ 
+                         client_hash_key = sec_websocket_key.decode('utf-8') + GUID
+                         # Use of SHA-1 is OK here; it's according to the Websocket spec.
+-                        client_hash_digest = hashlib.sha1(client_hash_key.encode('utf-8'))  # noqa: S324
++                        client_hash_digest = hashlib.sha1(client_hash_key.encode('utf-8'), usedforsecurity=False)
+                         client_hash = base64.b64encode(client_hash_digest.digest())
+ 
+                         if server_hash != client_hash:
