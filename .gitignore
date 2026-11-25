@@ -2,3 +2,6 @@ login.py
 test data/
 .venv/
 notes
+ext_libs/
+dist/
+__pycache__/

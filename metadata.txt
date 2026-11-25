@@ -4,7 +4,7 @@ description=View Hydrological Sensor Data in Real-Time
 about=A QGIS plugin for interactive hydrological sensor station discovery via Dict-API and push-based, real-time data visualization using the MQTT protocol.
 
 version=1.0.0
-qgisMinimumVersion=4.0
+qgisMinimumVersion=3.42
 qgisMaximumVersion=4.99
 author=52°North GmbH (Julia Rotert)
 email=edis@52north.org
@@ -17,5 +17,3 @@ tags=web, api, dict-api, mqtt, IoT, sensors, sensor-data, plots, real-time, hydr
 
 supportsQt6=True
 experimental=True
-
-plugin_dependencies=qpip
