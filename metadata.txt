@@ -1,9 +1,10 @@
 [general]
 name=QPegel
-description=View Hydrological Sensor Data in Real-Time
-about=A QGIS plugin for interactive hydrological sensor station discovery via Dict-API and push-based, real-time data visualization using the MQTT protocol.
+description=View Hydrological Sensor Data from PEGELONLINE in Real-Time
+about=A QGIS plugin for interactive hydrological sensor station discovery via PEGELONLINE Dict-API and push-based, real-time data visualization using EDIS.
+ See https://www.itzbund.de/DE/itloesungen/egovernment/echtzeitdateninfrastruktur/edis.html for details about the EDIS project.
 
-version=1.0.0
+version=1.1.1
 qgisMinimumVersion=3.42
 qgisMaximumVersion=4.99
 author=52°North GmbH (Julia Rotert)
@@ -13,7 +14,6 @@ homepage=https://github.com/52North/QPegel
 tracker=https://github.com/52North/QPegel/issues
 icon=Logo.png
 category=Vector
-tags=web, api, dict-api, mqtt, IoT, sensors, sensor-data, plots, real-time, hydrology
+tags=web, api, dict-api, mqtt, IoT, sensors, sensor-data, plots, real-time, hydrology, PEGELONLINE
 
-supportsQt6=True
 experimental=True
