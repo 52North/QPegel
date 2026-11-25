@@ -14,7 +14,7 @@
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -69,7 +69,7 @@
        <enum>Qt::NoFocus</enum>
       </property>
       <property name="title">
-       <string>User Authentification</string>
+       <string>User Authentication</string>
       </property>
       <property name="collapsed">
        <bool>false</bool>
@@ -83,7 +83,7 @@
          <item row="0" column="2">
           <widget class="QLineEdit" name="lineEditHostname">
            <property name="text">
-            <string>edis.pegelonline-wsv.de</string>
+            <string>edis.pegelonline.wsv.de</string>
            </property>
           </widget>
          </item>
@@ -139,55 +139,29 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_5">
       <item>
-       <widget class="QPushButton" name="pushButtonDisconnect">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
+       <widget class="QWidget" name="widgetStatus" native="true">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="toolTip">
-         <string>Stop connection to MQTT broker</string>
-        </property>
-        <property name="text">
-         <string>Disconnect</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButtonConnect">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Start connection to MQTT broker&lt;/p&gt;&lt;p&gt;Internet connection and valid user authentification required&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="text">
-         <string>Connect</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_7">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
+        <property name="minimumSize">
          <size>
-          <width>40</width>
+          <width>20</width>
           <height>20</height>
          </size>
         </property>
-       </spacer>
+        <property name="maximumSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>connection color (red: disconnected; green: connected; </string>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QLabel" name="labelStatus">
@@ -211,27 +185,47 @@
        </widget>
       </item>
       <item>
-       <widget class="QWidget" name="widgetStatus" native="true">
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButtonConnect">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="minimumSize">
-         <size>
-          <width>20</width>
-          <height>20</height>
-         </size>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Start connection to MQTT broker&lt;/p&gt;&lt;p&gt;Internet connection and valid user authentification required&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
-        <property name="maximumSize">
-         <size>
-          <width>20</width>
-          <height>20</height>
-         </size>
+        <property name="text">
+         <string>Connect</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButtonDisconnect">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
         <property name="toolTip">
-         <string>connection color (red: disconnected; green: connected; </string>
+         <string>Stop connection to MQTT broker</string>
+        </property>
+        <property name="text">
+         <string>Disconnect</string>
         </property>
        </widget>
       </item>
@@ -289,7 +283,7 @@
              <x>0</x>
              <y>0</y>
              <width>641</width>
-             <height>663</height>
+             <height>1391</height>
             </rect>
            </property>
            <property name="autoFillBackground">
@@ -334,29 +328,19 @@
                      <string>Remove the current polygon from the map and request</string>
                     </property>
                     <property name="text">
-                     <string>Remove Area of Interest</string>
+                     <string>Reset Area of Interest</string>
                     </property>
                    </widget>
-                  </item>
-                  <item>
-                   <spacer name="horizontalSpacer_5">
-                    <property name="orientation">
-                     <enum>Qt::Vertical</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
                   </item>
                  </layout>
                 </item>
                 <item>
                  <widget class="QgsCollapsibleGroupBox" name="mGroupBoxParameter">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -367,17 +351,50 @@
                   <property name="title">
                    <string>Additional Parameters</string>
                   </property>
+                  <property name="alignment">
+                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                  </property>
                   <property name="collapsed">
                    <bool>true</bool>
                   </property>
                   <property name="saveCollapsedState">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_9">
+                   <property name="spacing">
+                    <number>6</number>
+                   </property>
+                   <property name="sizeConstraint">
+                    <enum>QLayout::SetDefaultConstraint</enum>
+                   </property>
+                   <property name="leftMargin">
+                    <number>9</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>9</number>
+                   </property>
                    <item>
                     <widget class="QLabel" name="labelStation">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
                      <property name="text">
                       <string>Station (e.g. Köln)</string>
+                     </property>
+                     <property name="textFormat">
+                      <enum>Qt::AutoText</enum>
+                     </property>
+                     <property name="scaledContents">
+                      <bool>false</bool>
+                     </property>
+                     <property name="margin">
+                      <number>0</number>
+                     </property>
+                     <property name="indent">
+                      <number>-1</number>
                      </property>
                     </widget>
                    </item>
@@ -386,6 +403,12 @@
                    </item>
                    <item>
                     <widget class="QLabel" name="labelGewaesser">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
                      <property name="text">
                       <string>Water body (e.g. Rhein)</string>
                      </property>
@@ -396,6 +419,12 @@
                    </item>
                    <item>
                     <widget class="QLabel" name="labelParameter">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
                      <property name="text">
                       <string>Parameter (e.g. Wassertemperatur)</string>
                      </property>
@@ -406,6 +435,12 @@
                    </item>
                    <item>
                     <widget class="QLabel" name="labelQ">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
                      <property name="text">
                       <string>q (all available parameters)</string>
                      </property>
@@ -432,75 +467,134 @@
                      <string>By sending the request you will receive the available stations as response in the next fields</string>
                     </property>
                     <property name="text">
-                     <string>Send Request</string>
+                     <string>Search</string>
                     </property>
                    </widget>
-                  </item>
-                  <item>
-                   <spacer name="horizontalSpacer_3">
-                    <property name="orientation">
-                     <enum>Qt::Vertical</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
                   </item>
                  </layout>
                 </item>
                 <item>
-                 <widget class="QLabel" name="labelRequest">
-                  <property name="text">
-                   <string>API Request:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QTextEdit" name="textEditRequest">
+                 <widget class="QgsCollapsibleGroupBox" name="mGroupBoxAPIRequest">
                   <property name="enabled">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>60</height>
-                   </size>
-                  </property>
                   <property name="toolTip">
-                   <string>This field shows the final request URL</string>
+                   <string>Optional: add one or more parameters (with or without polygon)</string>
                   </property>
+                  <property name="title">
+                   <string>Additional Request Information</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                  </property>
+                  <property name="collapsed">
+                   <bool>true</bool>
+                  </property>
+                  <property name="saveCollapsedState">
+                   <bool>true</bool>
+                  </property>
+                  <layout class="QVBoxLayout" name="verticalLayout_11">
+                   <property name="spacing">
+                    <number>6</number>
+                   </property>
+                   <property name="sizeConstraint">
+                    <enum>QLayout::SetDefaultConstraint</enum>
+                   </property>
+                   <property name="leftMargin">
+                    <number>9</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>9</number>
+                   </property>
+                   <item>
+                    <widget class="QLabel" name="labelRequest">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="text">
+                      <string>API Request:</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QTextEdit" name="textEditRequest">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>19</height>
+                      </size>
+                     </property>
+                     <property name="acceptDrops">
+                      <bool>true</bool>
+                     </property>
+                     <property name="toolTip">
+                      <string>This field shows the final request URL</string>
+                     </property>
+                     <property name="verticalScrollBarPolicy">
+                      <enum>Qt::ScrollBarAlwaysOff</enum>
+                     </property>
+                     <property name="horizontalScrollBarPolicy">
+                      <enum>Qt::ScrollBarAlwaysOff</enum>
+                     </property>
+                     <property name="readOnly">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="labelResponse">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="text">
+                      <string>Response:</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLineEdit" name="lineEditResponse">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="toolTip">
+                      <string>This field shows how many stations were found in your request(s) in total</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
                  </widget>
                 </item>
                 <item>
                  <widget class="Line" name="line_2">
                   <property name="orientation">
                    <enum>Qt::Vertical</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="labelResponse">
-                  <property name="text">
-                   <string>Response:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLineEdit" name="lineEditResponse">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <property name="toolTip">
-                   <string>This field shows how many stations were found in your request(s) in total</string>
                   </property>
                  </widget>
                 </item>
@@ -522,6 +616,12 @@
                  <layout class="QHBoxLayout" name="horizontalLayout_3">
                   <item>
                    <widget class="QListWidget" name="listWidgetLayers">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                     <property name="minimumSize">
                      <size>
                       <width>0</width>
@@ -622,19 +722,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item>
-                   <spacer name="horizontalSpacer_10">
-                    <property name="orientation">
-                     <enum>Qt::Vertical</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
                  </layout>
                 </item>
                </layout>
@@ -660,6 +747,12 @@
        <layout class="QVBoxLayout" name="verticalLayout_5">
         <item>
          <widget class="QLabel" name="label">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="text">
            <string>Select Layer:</string>
           </property>
@@ -681,6 +774,12 @@
         </item>
         <item>
          <widget class="QLabel" name="label_2">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="text">
            <string>Select Unit(s):</string>
           </property>
@@ -723,7 +822,7 @@
              <x>0</x>
              <y>0</y>
              <width>641</width>
-             <height>663</height>
+             <height>1391</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_10">
@@ -765,6 +864,19 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_7">
       <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
        <widget class="QPushButton" name="pushButtonHelp">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -779,19 +891,6 @@
          <string>Help</string>
         </property>
        </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_6">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
       </item>
       <item>
        <widget class="QPushButton" name="pushButtonQuitSession">
@@ -810,22 +909,6 @@
        </widget>
       </item>
      </layout>
-    </item>
-    <item>
-     <spacer name="verticalSpacer_3">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="sizeType">
-       <enum>QSizePolicy::Fixed</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>20</width>
-        <height>40</height>
-       </size>
-      </property>
-     </spacer>
     </item>
    </layout>
   </widget>
