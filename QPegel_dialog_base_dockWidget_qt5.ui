@@ -83,14 +83,14 @@
          <item row="0" column="2">
           <widget class="QLineEdit" name="lineEditHostname">
            <property name="text">
-            <string/>
+            <string>edis.pegelonline-wsv.de</string>
            </property>
           </widget>
          </item>
          <item row="1" column="2">
           <widget class="QLineEdit" name="lineEditPort">
            <property name="text">
-            <string/>
+            <string>8883</string>
            </property>
           </widget>
          </item>
