@@ -422,7 +422,17 @@ class QPegel(object):
     # starts the request, receives & transmits response
     def sendbtn_clicked(self):
         # API request with current parameters
-        response = requests.get(self.base_url, self.url_parameters)
+        # (connect timeout, read timeout) in seconds, so a hanging server cannot freeze QGIS
+        try:
+            response = requests.get(
+                self.base_url, params=self.url_parameters, timeout=(5, 30)
+            )
+        except requests.exceptions.Timeout:
+            QMessageBox.warning(None, "Error:", "Error: Request timed out")
+            return
+        except requests.exceptions.RequestException as e:
+            QMessageBox.warning(None, "Error:", f"Error: {e}")
+            return
         # check if request was successful or show error
         if response.status_code == 200:
             self.on_response(response)
